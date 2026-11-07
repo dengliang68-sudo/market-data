@@ -124,6 +124,9 @@ class Pos:
     realized: float = 0.0
     lots_open: int = 0
     exits: list = field(default_factory=list)
+    entry_delta: float = 0.0
+    entry_days_left: int = 0
+    iv_pct: float | None = None
 
 
 class Book:
@@ -243,6 +246,13 @@ def run(cfg: dict, days: list[str], U: dict, book: Book, meta: pd.DataFrame, ivp
     month_count = defaultdict(int)
     skipped = defaultdict(int)
     skipped_by = defaultdict(lambda: defaultdict(int))
+    decisions = []
+
+    def decide(d, code, s, outcome):
+        decisions.append({"date": d, "code": UNDER[code], "dir": "看涨" if s["dir"] > 0 else "看跌", "level": s["level"],
+                          "strat": s["strat"], "u_close": round(float(U[code].at[d, "close"]), 3),
+                          "stop": round(float(s["stop"]), 3), "target": round(float(s["target"]), 3),
+                          "iv_pct": ivp.get(code, {}).get(d), "outcome": outcome})
     tier_log = []
     meta_by_u = {c: meta[meta.underlying == c] for c in cfg["unders"]}
 
@@ -275,7 +285,12 @@ def run(cfg: dict, days: list[str], U: dict, book: Book, meta: pd.DataFrame, ivp
             "lots": p.lots, "entry": round(p.entry, 4), "risk": round(p.risk, 0),
             "pnl": round(p.realized, 1),
             "exits": "；".join(f"{x[0]} {x[1]}×{x[2]}" for x in p.exits),
+            "exit_detail": json.dumps(p.exits, ensure_ascii=False),
             "maturity": p.maturity,
+            "u_entry": round(p.u_entry, 3), "u_stop": round(p.u_stop, 3), "u_target": round(p.u_target, 3),
+            "legs": "；".join(f"{'买' if sd > 0 else '卖'}{book.meta.at[c, 'name'] if ('name' in book.meta.columns and c in book.meta.index) else c}（{c}）" for c, sd in p.legs),
+            "entry_delta": round(p.entry_delta, 2), "entry_days_left": p.entry_days_left,
+            "iv_pct": p.iv_pct,
         })
 
     for i, d in enumerate(days):
@@ -370,7 +385,14 @@ def run(cfg: dict, days: list[str], U: dict, book: Book, meta: pd.DataFrame, ivp
             continue
 
         # ---- 3. 新开仓 ----
-        if tier == "停手" or i >= len(days) - 1:
+        if i >= len(days) - 1:
+            continue
+        if tier == "停手":
+            for code in cfg["unders"]:
+                if d in U[code].index:
+                    for s in signals(U[code].loc[d]):
+                        if s["level"] == "A" or cfg["use_B"]:
+                            decide(d, code, s, "放弃：回撤熔断停手中")
             continue
         risk = ({"正常": 500, "减速": 250, "保护": 150}[tier] if cfg["risk_tiers"] else 500) * k
         max_pos = 1 if tier == "减速" else 3
@@ -389,18 +411,22 @@ def run(cfg: dict, days: list[str], U: dict, book: Book, meta: pd.DataFrame, ivp
         for code, s in cands:
             if month_count[ym] >= 6:
                 skipped["月度6笔上限"] += 1
-                break
+                decide(d, code, s, "放弃：本月已开6笔")
+                continue
             if len(positions) >= max_pos:
                 skipped["持仓已满"] += 1
-                break
+                decide(d, code, s, f"放弃：持仓已满（{tier}档最多{max_pos}笔）")
+                continue
             if any(p.dir == s["dir"] for p in positions):
                 skipped["同方向已有持仓"] += 1
+                decide(d, code, s, "放弃：同方向已有持仓")
                 continue
             mode = cfg.get("iv_mode", "spread" if cfg.get("iv_filter", True) else "off")
             iv_hi = mode != "off" and ivp.get(code, {}).get(d, 50) >= 70
             if iv_hi and mode == "skip":
                 skipped["IV偏高不做"] += 1
                 skipped_by[UNDER[code]]["IV偏高不做"] += 1
+                decide(d, code, s, "放弃：IV偏高")
                 continue
             spread = (iv_hi and mode == "spread") or tier == "保护"
             rr = risk * (0.5 if s["level"] == "B" else 1)
@@ -409,6 +435,7 @@ def run(cfg: dict, days: list[str], U: dict, book: Book, meta: pd.DataFrame, ivp
             ct = pick_contract(book, meta_by_u[code], d, cp, S, spread)
             if ct is None:
                 skipped["无合适合约"] += 1
+                decide(d, code, s, "放弃：没有符合条件的合约")
                 continue
             if spread:
                 net = ct["long_px"] - ct["short_px"]
@@ -426,11 +453,15 @@ def run(cfg: dict, days: list[str], U: dict, book: Book, meta: pd.DataFrame, ivp
             if lots < 1:
                 skipped["一张的风险就超过预算"] += 1
                 skipped_by[UNDER[code]]["一张的风险就超过预算"] += 1
+                decide(d, code, s, "放弃：一张的风险就超过预算")
                 continue
             p = Pos(code=code, dir=s["dir"], level=s["level"], strat=s["strat"], legs=legs, lots=lots,
                     entry=entry, stop_pct=stop_pct, u_entry=S, u_stop=s["stop"], u_target=s["target"],
                     open_i=i, maturity=ct["maturity"], risk=lots * entry * 10000 * stop_pct, spread=spread,
-                    short_strike=ct.get("short_k", 0.0), max_close=ct["long_px"], lots_open=lots)
+                    short_strike=ct.get("short_k", 0.0), max_close=ct["long_px"], lots_open=lots,
+                    entry_delta=ct["delta"], entry_days_left=ct["days_left"],
+                    iv_pct=None if ivp.get(code, {}).get(d) is None else round(ivp[code][d], 0))
+            decide(d, code, s, "开仓：" + ("价差" if spread else "单腿") + f"{lots}张")
             entry_fee = FEE * len(legs) * lots
             p.realized -= entry_fee
             realized -= entry_fee
@@ -444,7 +475,7 @@ def run(cfg: dict, days: list[str], U: dict, book: Book, meta: pd.DataFrame, ivp
             close_lots(p, p.lots_open, v, days[-1], "回测结束")
         finish(p, days[-1])
     return {"trades": closed, "equity": equity_curve, "skipped": dict(skipped), "tiers": tier_log,
-            "skipped_by": {u: dict(v) for u, v in skipped_by.items()}, "capital": cap}
+            "skipped_by": {u: dict(v) for u, v in skipped_by.items()}, "capital": cap, "decisions": decisions}
 
 
 # ---------------- 统计 ----------------
@@ -591,6 +622,12 @@ def main():
         key = r["cfg"]["name"].split()[0]
         pd.DataFrame(r["trades"]).to_csv(out_dir / f"{tag}_{key}_trades.csv", index=False, encoding="utf-8-sig")
         pd.DataFrame(r["equity"], columns=["date", "equity"]).to_csv(out_dir / f"{tag}_{key}_equity.csv", index=False)
+    for r in results:
+        key = r["cfg"]["name"].split()[0]
+        pd.DataFrame(r["decisions"]).to_csv(out_dir / f"{tag}_{key}_signals.csv", index=False, encoding="utf-8-sig")
+    for code, u in U.items():
+        cols = ["open", "high", "low", "close", "vol", "ma20", "ma60", "state", "hi20", "lo20"]
+        u.loc[u.index >= a.start, cols].to_csv(out_dir / f"{tag}_etf_{UNDER[code]}.csv")
     ivdf = pd.DataFrame({UNDER[c]: s for c, s in iv_raw.items()})
     ivdf.to_csv(out_dir / f"{tag}_atm_iv.csv")
     print(text[:6000])
