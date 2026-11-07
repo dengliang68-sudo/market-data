@@ -50,6 +50,8 @@ def frame(df: pd.DataFrame) -> pd.DataFrame:
     u["ma60_ok"] = u["ma60"] >= u["ma60"].shift(10) * 0.98                           # 60日线没有明显向下
     u["fresh_up"] = c.shift(1) <= u["hi20"].shift(1)                                  # 昨天还没突破：今天是第一次突破
     u["fresh_dn"] = c.shift(1) >= u["lo20"].shift(1)
+    u["ma60_up"] = u["ma60"] > u["ma60"].shift(20)
+    u["pct"] = c / c.shift(1) - 1
     u["ma60_dn"] = u["ma60"] < u["ma60"].shift(20)                                    # 60日线比20天前低：空头环境
     u["touch60_dn"] = (h >= u["ma60"] * 0.99).astype(float).rolling(3).max() > 0      # 近3天反弹碰到60日线
     u["touch20_dn"] = (h >= u["ma20"] * 0.99).astype(float).rolling(3).max() > 0
@@ -72,13 +74,20 @@ def signals_v2(u: pd.Series, use_pullback: bool, cfg: dict | None = None) -> lis
     out = []
     # ---- 做多 ----
     if not u.ext_up:
-        if c > u.hi20 and u.fresh_up and vol_ok and c > u.open and u.touch60 and u.held60 and u.ma60_ok and c > u.ma20:
+        vr = u.vol / u.vol20_prev
+        if cfg.get("l4") and u.pct >= 0.03 and vr >= 1.5 and c > u.ma20 and c > u.open:
+            stop = min(u.low, c - a)
+            out.append(dict(dir=1, strat="L4放量大阳线", stop=stop, target=c + 2 * (c - stop)))
+        elif c > u.hi20 and u.fresh_up and vol_ok and c > u.open and u.touch60 and u.held60 and u.ma60_ok and c > u.ma20:
             stop = min(u.ma20, c - a)
             out.append(dict(dir=1, strat="L2回踩60日线起涨", stop=stop, target=c + 2 * (c - stop)))
-        elif u.state == "上升" and c > u.hi20 and u.fresh_up and vol_ok:
+        elif (u.state == "上升" or (cfg.get("l1_relax") and c > u.ma60 and u.ma60_ok)) and c > u.hi20 and u.fresh_up and vol_ok:
             stop = min(u.hi20, c - a)
             out.append(dict(dir=1, strat="L1趋势突破", stop=stop, target=c + 2 * (c - stop)))
-        elif use_pullback and u.state == "上升" and u.touch_up and c > u.open and c > u.prev_close:
+        elif use_pullback and cfg.get("l3_new") and u.ma60_up and u.touch_up and c > u.open and c > u.prev_close and c > u.ma20:
+            stop = min(u.low5, c - a)
+            out.append(dict(dir=1, strat="L3回踩20日线", stop=stop, target=c + 2 * (c - stop)))
+        elif use_pullback and not cfg.get("l3_new") and u.state == "上升" and u.touch_up and c > u.open and c > u.prev_close:
             stop, target = min(u.low5, c - a), u.max20
             if target - c >= 2 * (c - stop) > 0:
                 out.append(dict(dir=1, strat="L3回调上车", stop=stop, target=target))
@@ -208,6 +217,15 @@ def run_v2(cfg, days, u, book, meta_u, ivp):
                     elif mode == "ma5":
                         out = (r.close < r.ma5) if p.dir > 0 else (r.close > r.ma5)
                         why = "标的跌破5日线" if p.dir > 0 else "标的站上5日线"
+                    elif mode == "mix":
+                        # 剩余仓位一半跌破5日线出，另一半跌破20日线出
+                        b5 = (r.close < r.ma5) if p.dir > 0 else (r.close > r.ma5)
+                        b20 = (r.close < r.ma20) if p.dir > 0 else (r.close > r.ma20)
+                        if b20:
+                            out, why = True, ("标的跌破20日线" if p.dir > 0 else "标的站上20日线")
+                        elif b5 and not getattr(p, "mix_half", False) and p.lots_open >= 2:
+                            p.mix_half = True
+                            close(p, p.lots_open // 2, cl, d, "标的跌破5日线（平剩余的一半）" if p.dir > 0 else "标的站上5日线（平剩余的一半）")
                     elif mode == "ma20":
                         out = (r.close < r.ma20) if p.dir > 0 else (r.close > r.ma20)
                         why = "标的跌破20日线" if p.dir > 0 else "标的站上20日线"
@@ -282,6 +300,12 @@ def run_v2(cfg, days, u, book, meta_u, ivp):
             if tier in ("停手", "保护"):
                 decide(d, s, f"放弃：风控{tier}档")
                 continue
+            if pos and cfg.get("reverse") and pos.dir != s["dir"] and s["strat"][:2] in cfg["reverse"]:
+                c_old = book.price(pos.leg, d)
+                if c_old:
+                    close(pos, pos.lots_open, c_old, d, "反向信号，反手")
+                    finish(pos, d)
+                    pos = None
             if pos:
                 decide(d, s, "放弃：已有持仓")
                 continue
@@ -344,15 +368,16 @@ def main():
     sim = all_days[all_days.index(next(d for d in all_days if d >= a.start)) - 60:]
 
     rec = dict(trail="ma5", pullback=True, iv_skip=True, iv_long=False, iv_short=True, vol_mult=1.2, s2="off")
-    rec2 = {**rec, "s3": True, "s4": True, "bear_only": True, "trail_short": "ma5", "short_stop_pct": 0.6, "tstop_short": 5}
+    H = {**rec, "s3": True, "s4": True, "bear_only": True, "trail_short": "ma5", "short_stop_pct": 0.6, "tstop_short": 5}
+    M = {**H, "l4": True, "l1_relax": True, "trail": "ma20", "trail_short": "mix"}
     variants = [
         {"key": "A", "name": "A 旧规则（v1）", "old": True},
-        {"key": "B", "name": "B 第一版新规则（只有S1做空）", **rec},
-        {"key": "H", "name": "H 新推荐：加S3/S4反抽受阻做空，只在60日线向下时做空", **rec2},
-        {"key": "I", "name": "I 同H，做空不用IV过滤", **{**rec2, "iv_short": False}},
-        {"key": "J", "name": "J 同H，再加S2跌破前低（只在下降趋势）", **{**rec2, "s2": "down"}},
-        {"key": "K", "name": "K 同H，但不限空头环境", **{**rec2, "bear_only": False}},
-        {"key": "C", "name": "C 同H，剩余仓位期权从最高回落10%清仓", **{**rec2, "trail": "opt10", "trail_short": "opt10"}},
+        {"key": "H", "name": "H 上一版：加强做空", **H},
+        {"key": "M", "name": "M 新推荐：加放量大阳线、放宽突破，多单跌破20日线才走", **M},
+        {"key": "N", "name": "N 同M，多单跌破5日线就走", **{**M, "trail": "ma5"}},
+        {"key": "O", "name": "O 同M，多单一半跌破5日线走、一半跌破20日线走", **{**M, "trail": "mix"}},
+        {"key": "P", "name": "P 同M，不要放量大阳线信号", **{**M, "l4": False}},
+        {"key": "Q", "name": "Q 同M，突破仍要求上升趋势", **{**M, "l1_relax": False}},
     ]
     res = []
     for v in variants:
@@ -383,6 +408,9 @@ def main():
          "+50% 或到达 2:1 目标（先到者）平一半、只执行一次、剩余止损提到保本；剩余仓位按各方案的跟踪规则出场；剩余不到 7 天：已进入跟踪阶段就移仓到下个月，否则平仓；长假前减半",
          "- 做空 S3 反抽60日线受阻：20 日线在 60 日线下方，近 3 天最高价碰到 60 日线附近，当天阴线且收盘低于前一天、在 60 日线下方；止损 = max(近5日最高, 60日线, 收盘 + 1ATR)；目标 = 2:1",
          "- 做空 S4 反抽20日线受阻：下降趋势中近 3 天最高价碰到 20 日线附近，当天阴线收低、在 20 日线下方；止损 = max(近5日最高, 20日线, 收盘 + 1ATR)；目标 = 2:1",
+         "- 做多 L4 放量大阳线（M 方案起）：当天涨幅 ≥ 3%、成交量 ≥ 20 日均量 1.5 倍、收阳并站上 20 日线；止损 = min(当天最低, 收盘 − 1ATR)；目标 = 2:1",
+         "- L1 突破放宽（M 方案起）：不再要求趋势状态为上升，改为收盘在 60 日线上方且 60 日线不明显向下",
+         "- 跟踪止盈（M 方案）：多单剩余仓位标的跌破 20 日线才清仓；空单剩余仓位一半站上 5 日线平、另一半站上 20 日线平",
          "- 空头环境过滤（H 方案起）：只在 60 日线低于 20 天前时做空；做空权利金止损 −60%",
          "- 风控：每周按净值回撤分档；保护档和停手档不开新仓（v2 不做价差）。每月最多 6 笔。\n",
          "## 结果对比\n",
