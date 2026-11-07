@@ -3,7 +3,7 @@
 为「三地股市复盘」（早报、晚报）提供数据的程序，以后也会给「期权交易」系统共用。
 程序负责**拉数据、算指标、按规则分级**，Claude 负责**结合新闻做判断、写报告**。
 
-- 仓库：`dengliang68-sudo/market-data`（私有）
+- 仓库：`dengliang68-sudo/market-data`（公开）
 - 当前版本：v0.2（2026-11-07，新增期权模块）
 - 自动运行：GitHub Actions（`.github/workflows/daily.yml`）——早报数据 06:40、晚报数据 16:30、期权数据 20:30（北京时间）；Tushare Key 存在仓库的 Secrets 里
 - 运行环境：Claude 的云端会话（每次定时任务新开一个，跑完即清空）
