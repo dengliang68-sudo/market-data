@@ -6,6 +6,10 @@ on:
         description: "回测开始日期 YYYYMMDD"
         required: true
         default: "20230101"
+      set:
+        description: "方案组：base 或 100k"
+        required: true
+        default: "base"
       end:
         description: "回测结束日期 YYYYMMDD（留空=最近交易日）"
         required: false
@@ -29,7 +33,7 @@ jobs:
       - name: 回测
         run: |
           if [ -n "${{ inputs.end }}" ]; then E="--end ${{ inputs.end }}"; else E=""; fi
-          python backtest/opt_backtest.py --start ${{ inputs.start }} $E
+          python backtest/opt_backtest.py --start ${{ inputs.start }} --set ${{ inputs.set }} $E
       - name: 提交结果和缓存
         if: always()
         run: |

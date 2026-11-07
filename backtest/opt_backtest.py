@@ -230,16 +230,19 @@ def atm_iv_series(book: Book, meta_u: pd.DataFrame, u: pd.DataFrame, days: list[
 
 # ---------------- 模拟 ----------------
 def run(cfg: dict, days: list[str], U: dict, book: Book, meta: pd.DataFrame, ivp: dict) -> dict:
-    """cfg: name, unders, use_B, iv_filter, risk_tiers"""
+    """cfg: name, unders, use_B, iv_mode(spread/skip/off), risk_tiers, capital"""
+    cap = cfg.get("capital", CAPITAL)
+    k = cap / 50000            # 风险额度按本金等比例放大（指引：单笔 = 本金 1%）
     positions: list[Pos] = []
     closed: list[dict] = []
     realized = 0.0
     equity_curve = []
-    peak = CAPITAL
+    peak = cap
     tier = "正常"
     pause_until = -1
     month_count = defaultdict(int)
     skipped = defaultdict(int)
+    skipped_by = defaultdict(lambda: defaultdict(int))
     tier_log = []
     meta_by_u = {c: meta[meta.underlying == c] for c in cfg["unders"]}
 
@@ -342,9 +345,9 @@ def run(cfg: dict, days: list[str], U: dict, book: Book, meta: pd.DataFrame, ivp
             v = pos_value(p, d)
             if v is not None:
                 unreal += (v - p.entry) * 10000 * p.lots_open
-        eq = CAPITAL + realized + unreal
+        eq = cap + realized + unreal
         peak = max(peak, eq)
-        dd = (peak - eq) / CAPITAL
+        dd = (peak - eq) / cap
         equity_curve.append((d, round(eq, 1)))
         is_week_end = i + 1 >= len(days) or dt(days[i + 1]).isocalendar()[1] != dt(d).isocalendar()[1]
         if cfg["risk_tiers"] and is_week_end and i >= pause_until:
@@ -369,7 +372,7 @@ def run(cfg: dict, days: list[str], U: dict, book: Book, meta: pd.DataFrame, ivp
         # ---- 3. 新开仓 ----
         if tier == "停手" or i >= len(days) - 1:
             continue
-        risk = {"正常": 500, "减速": 250, "保护": 150}[tier] if cfg["risk_tiers"] else 500
+        risk = ({"正常": 500, "减速": 250, "保护": 150}[tier] if cfg["risk_tiers"] else 500) * k
         max_pos = 1 if tier == "减速" else 3
         ym = d[:6]
         cands = []
@@ -393,8 +396,13 @@ def run(cfg: dict, days: list[str], U: dict, book: Book, meta: pd.DataFrame, ivp
             if any(p.dir == s["dir"] for p in positions):
                 skipped["同方向已有持仓"] += 1
                 continue
-            iv_hi = cfg["iv_filter"] and ivp.get(code, {}).get(d, 50) >= 70
-            spread = iv_hi or tier == "保护"
+            mode = cfg.get("iv_mode", "spread" if cfg.get("iv_filter", True) else "off")
+            iv_hi = mode != "off" and ivp.get(code, {}).get(d, 50) >= 70
+            if iv_hi and mode == "skip":
+                skipped["IV偏高不做"] += 1
+                skipped_by[UNDER[code]]["IV偏高不做"] += 1
+                continue
+            spread = (iv_hi and mode == "spread") or tier == "保护"
             rr = risk * (0.5 if s["level"] == "B" else 1)
             S = U[code].at[d, "close"]
             cp = "C" if s["dir"] > 0 else "P"
@@ -417,6 +425,7 @@ def run(cfg: dict, days: list[str], U: dict, book: Book, meta: pd.DataFrame, ivp
             lots = math.floor(rr / (entry * 10000 * stop_pct))
             if lots < 1:
                 skipped["一张的风险就超过预算"] += 1
+                skipped_by[UNDER[code]]["一张的风险就超过预算"] += 1
                 continue
             p = Pos(code=code, dir=s["dir"], level=s["level"], strat=s["strat"], legs=legs, lots=lots,
                     entry=entry, stop_pct=stop_pct, u_entry=S, u_stop=s["stop"], u_target=s["target"],
@@ -434,11 +443,12 @@ def run(cfg: dict, days: list[str], U: dict, book: Book, meta: pd.DataFrame, ivp
         if v is not None:
             close_lots(p, p.lots_open, v, days[-1], "回测结束")
         finish(p, days[-1])
-    return {"trades": closed, "equity": equity_curve, "skipped": dict(skipped), "tiers": tier_log}
+    return {"trades": closed, "equity": equity_curve, "skipped": dict(skipped), "tiers": tier_log,
+            "skipped_by": {u: dict(v) for u, v in skipped_by.items()}, "capital": cap}
 
 
 # ---------------- 统计 ----------------
-def stats(trades: list[dict], equity: list) -> dict:
+def stats(trades: list[dict], equity: list, cap: float = CAPITAL) -> dict:
     t = pd.DataFrame(trades)
     if t.empty:
         return {"笔数": 0}
@@ -454,8 +464,8 @@ def stats(trades: list[dict], equity: list) -> dict:
         "平均盈利": round(w.pnl.mean(), 0) if len(w) else 0, "平均亏损": round(l.pnl.mean(), 0) if len(l) else 0,
         "盈亏比": round(w.pnl.mean() / -l.pnl.mean(), 2) if len(w) and len(l) and l.pnl.mean() < 0 else None,
         "利润因子": round(w.pnl.sum() / -l.pnl.sum(), 2) if len(l) and l.pnl.sum() < 0 else None,
-        "总盈亏": round(t.pnl.sum(), 0), "收益率%": round(t.pnl.sum() / CAPITAL * 100, 1),
-        "最大回撤(元)": round(mdd, 0), "最大回撤%": round(mdd / CAPITAL * 100, 1),
+        "总盈亏": round(t.pnl.sum(), 0), "收益率%": round(t.pnl.sum() / cap * 100, 1),
+        "最大回撤(元)": round(mdd, 0), "最大回撤%": round(mdd / cap * 100, 1),
         "最长连亏": streak, "单笔最大亏损": round(t.pnl.min(), 0), "单笔最大盈利": round(t.pnl.max(), 0),
     }
 
@@ -483,6 +493,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--start", default="20230101")
     ap.add_argument("--end", default=None)
+    ap.add_argument("--set", default="base", help="base=5万本金五个方案；100k=10万本金方案")
     a = ap.parse_args()
     end = a.end or datetime.now().strftime("%Y%m%d")
     warm = str(int(a.start[:4]) - 1) + a.start[4:]           # 预热一年：均线和 IV 分位要用
@@ -509,25 +520,34 @@ def main():
     days = [d for d in all_days if d >= a.start]
     # 预留 60 天让第一天就有完整均线：把预热期的最后 60 天也放进模拟（这些天不开仓）
     sim_days = all_days[all_days.index(days[0]) - 60:]
-    variants = [
-        {"name": "V1 完整规则（A级信号，IV高用价差，风控分档，5个品种）", "unders": list(UNDER), "use_B": False, "iv_filter": True, "risk_tiers": True},
-        {"name": "V2 只做300ETF（其他同V1）", "unders": ["510300.SH"], "use_B": False, "iv_filter": True, "risk_tiers": True},
-        {"name": "V3 加上B级信号（半份风险）", "unders": list(UNDER), "use_B": True, "iv_filter": True, "risk_tiers": True},
-        {"name": "V4 不用IV过滤（全部单腿买入）", "unders": list(UNDER), "use_B": False, "iv_filter": False, "risk_tiers": True},
-        {"name": "V5 不用风控分档（固定每笔500元）", "unders": list(UNDER), "use_B": False, "iv_filter": True, "risk_tiers": False},
-    ]
+    ALL5 = list(UNDER)
+    if a.set == "100k":
+        variants = [
+            {"name": "V6 10万本金·5个品种·IV高不做", "unders": ALL5, "use_B": False, "iv_mode": "skip", "risk_tiers": True, "capital": 100000},
+            {"name": "V7 10万本金·去掉50ETF·IV高不做", "unders": [c for c in ALL5 if c != "510050.SH"], "use_B": False, "iv_mode": "skip", "risk_tiers": True, "capital": 100000},
+            {"name": "V8 10万本金·只做300ETF和500ETF·IV高不做", "unders": ["510300.SH", "510500.SH"], "use_B": False, "iv_mode": "skip", "risk_tiers": True, "capital": 100000},
+            {"name": "V9 10万本金·5个品种·IV高用价差（V1放大对照）", "unders": ALL5, "use_B": False, "iv_mode": "spread", "risk_tiers": True, "capital": 100000},
+        ]
+    else:
+        variants = [
+            {"name": "V1 完整规则（A级信号，IV高用价差，风控分档，5个品种）", "unders": ALL5, "use_B": False, "iv_mode": "spread", "risk_tiers": True},
+            {"name": "V2 只做300ETF（其他同V1）", "unders": ["510300.SH"], "use_B": False, "iv_mode": "spread", "risk_tiers": True},
+            {"name": "V3 加上B级信号（半份风险）", "unders": ALL5, "use_B": True, "iv_mode": "spread", "risk_tiers": True},
+            {"name": "V4 不用IV过滤（全部单腿买入）", "unders": ALL5, "use_B": False, "iv_mode": "off", "risk_tiers": True},
+            {"name": "V5 不用风控分档（固定每笔500元）", "unders": ALL5, "use_B": False, "iv_mode": "spread", "risk_tiers": False},
+        ]
     results = []
     for v in variants:
         print("回测", v["name"], flush=True)
         r = run(v, sim_days, U, book, meta, ivp)
-        r["stats"] = stats(r["trades"], r["equity"])
+        r["stats"] = stats(r["trades"], r["equity"], r["capital"])
         r["cfg"] = v
         results.append(r)
 
     out_dir = ROOT / "reports" / "backtest"
     out_dir.mkdir(parents=True, exist_ok=True)
-    tag = f"opt_{a.start}_{end}"
-    L = [f"# ETF 期权买方策略回测（{a.start}–{end}）\n",
+    tag = f"opt_{a.start}_{end}" + ("" if a.set == "base" else f"_{a.set}")
+    L = [f"# ETF 期权买方策略回测（{a.start}–{end}，方案组：{a.set}）\n",
          f"生成时间 {datetime.now().strftime('%Y-%m-%d %H:%M')}。规则来自《ETF期权买方交易指引（5万本金版）》，数据来自 Tushare。\n",
          "## 回测假设\n",
          "- 日线级别：收盘判断信号、按当日收盘价进场；权利金止损和+50%止盈用期权当日最低/最高价判断，按触发价成交（跳空时按开盘价）；逻辑止损按次日开盘价平仓。",
@@ -537,6 +557,7 @@ def main():
          "- IV过滤：平值IV处在近一年（250个交易日）的70%分位以上时改用价差（买平值、卖同月虚二档），否则单腿买入。",
          "- 出场：逻辑止损、权利金止损（①-40%、②-50%、③价差-50%）、5个交易日未走出目标一半的时间止损、+50%平一半（1张时止损提到保本）、剩余从最高收盘回撤30%出、"
          "到达目标位（价差为到达卖出行权价）、剩余不到7天平仓、长假（休市超过5天）前减半。",
+         "- 本金：方案名里写了 10 万的按 10 万计，单笔风险和各档位额度按本金等比例放大（单笔 = 本金 1%，即 1000 元；减速档 500 元；保护档 300 元）；'IV高不做'表示平值 IV 在近一年 70% 分位以上时放弃该信号。",
          "- 仓位：张数 = 单笔风险 ÷（权利金 × 10000 × 止损比例）向下取整，算出来不到1张就放弃；每月最多6笔新开仓；同一方向同时只持1笔；最多3笔。",
          "- 风控分档（每周末按净值从高点的回撤）：<5% 每笔500元；5–7% 250元、只做A级、最多1笔；7–10% 150元、只做价差；≥10% 全部平仓、停两周，之后从\"保护\"档重新开始，回撤基准重置。",
          f"- 成本：每张每边 {FEE} 元费用；滑点为权利金的 1%（至少 0.0001）每边每腿。无风险利率按 {R*100}% 估算 IV 和 Delta。",
@@ -559,6 +580,7 @@ def main():
             ex.columns = ["首个出场原因", "笔数"]
             L.append("\n### 出场原因\n" + md_table(ex))
         L.append(f"\n放弃的信号：{r['skipped']}\n")
+        L.append(f"按品种的放弃原因：{r['skipped_by']}\n")
         if r["tiers"]:
             L.append("风控档位变化：" + "；".join(f"{a}：{b}→{c}（回撤{d}%）" for a, b, c, d in r["tiers"]) + "\n")
     v1 = results[0]
