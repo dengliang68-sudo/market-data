@@ -2,6 +2,10 @@ name: backtest-options
 on:
   workflow_dispatch:
     inputs:
+      script:
+        description: "opt=多品种回测；kc50=科创50新旧规则对比"
+        required: true
+        default: "opt"
       start:
         description: "回测开始日期 YYYYMMDD"
         required: true
@@ -33,7 +37,11 @@ jobs:
       - name: 回测
         run: |
           if [ -n "${{ inputs.end }}" ]; then E="--end ${{ inputs.end }}"; else E=""; fi
-          python backtest/opt_backtest.py --start ${{ inputs.start }} --set ${{ inputs.set }} $E
+          if [ "${{ inputs.script }}" = "kc50" ]; then
+            python backtest/kc50_backtest.py --start ${{ inputs.start }} $E
+          else
+            python backtest/opt_backtest.py --start ${{ inputs.start }} --set ${{ inputs.set }} $E
+          fi
       - name: 提交结果和缓存
         if: always()
         run: |
