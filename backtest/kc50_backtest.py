@@ -50,6 +50,10 @@ def frame(df: pd.DataFrame) -> pd.DataFrame:
     u["ma60_ok"] = u["ma60"] >= u["ma60"].shift(10) * 0.98                           # 60日线没有明显向下
     u["fresh_up"] = c.shift(1) <= u["hi20"].shift(1)                                  # 昨天还没突破：今天是第一次突破
     u["fresh_dn"] = c.shift(1) >= u["lo20"].shift(1)
+    u["ma60_dn"] = u["ma60"] < u["ma60"].shift(20)                                    # 60日线比20天前低：空头环境
+    u["touch60_dn"] = (h >= u["ma60"] * 0.99).astype(float).rolling(3).max() > 0      # 近3天反弹碰到60日线
+    u["touch20_dn"] = (h >= u["ma20"] * 0.99).astype(float).rolling(3).max() > 0
+    u["high5"] = h.rolling(5).max()
     u["above20_recent"] = (c.shift(1) >= u["ma20"].shift(1)).astype(float).rolling(3).max() > 0
     u["below20_recent"] = (c.shift(1) <= u["ma20"].shift(1)).astype(float).rolling(3).max() > 0
     # 偏离过滤按"突破前一天"的位置算：当天的大阳线/大阴线本身不算偏离
@@ -79,9 +83,16 @@ def signals_v2(u: pd.Series, use_pullback: bool, cfg: dict | None = None) -> lis
             if target - c >= 2 * (c - stop) > 0:
                 out.append(dict(dir=1, strat="L3回调上车", stop=stop, target=target))
     # ---- 做空（不要求放量）----
-    if not u.ext_dn:
+    if not u.ext_dn and (not cfg.get("bear_only") or u.ma60_dn):
+        bear_bar = c < u.open and c < u.prev_close
         if c < u.ma20 and c < u.low10 and u.above20_recent and u.ma60 < c and (c - u.ma60) >= 2 * (u.ma20 - c):
             out.append(dict(dir=-1, strat="S1跌破20日线和平台", stop=u.ma20, target=u.ma60))
+        elif cfg.get("s3", False) and u.ma20 < u.ma60 and u.touch60_dn and bear_bar and c < u.ma60:
+            stop = max(u.high5, u.ma60, c + a)
+            out.append(dict(dir=-1, strat="S3反抽60日线受阻", stop=stop, target=c - 2 * (stop - c)))
+        elif cfg.get("s4", False) and u.state == "下降" and u.touch20_dn and bear_bar and c < u.ma20:
+            stop = max(u.high5, u.ma20, c + a)
+            out.append(dict(dir=-1, strat="S4反抽20日线受阻", stop=stop, target=c - 2 * (stop - c)))
         elif cfg.get("s2", "any") != "off" and c < u.lo20 and u.fresh_dn and (c < u.ma20 or c < u.ma60) \
                 and (u.state == "下降" if cfg.get("s2") == "down" else u.state != "上升"):
             stop = max(u.lo20, c + a)
@@ -188,7 +199,7 @@ def run_v2(cfg, days, u, book, meta_u, ivp):
                         p.peak = cl
                 if p.lots_open and p.partial:
                     p.peak = max(p.peak, cl)
-                    mode = cfg["trail"]
+                    mode = cfg.get("trail_short", cfg["trail"]) if p.dir < 0 else cfg["trail"]
                     out = False
                     if mode.startswith("opt"):
                         k = int(mode[3:]) / 100
@@ -197,6 +208,9 @@ def run_v2(cfg, days, u, book, meta_u, ivp):
                     elif mode == "ma5":
                         out = (r.close < r.ma5) if p.dir > 0 else (r.close > r.ma5)
                         why = "标的跌破5日线" if p.dir > 0 else "标的站上5日线"
+                    elif mode == "ma20":
+                        out = (r.close < r.ma20) if p.dir > 0 else (r.close > r.ma20)
+                        why = "标的跌破20日线" if p.dir > 0 else "标的站上20日线"
                     elif mode == "ma10":
                         ma10 = r.ma10
                         out = (r.close < ma10) if p.dir > 0 else (r.close > ma10)
@@ -222,7 +236,7 @@ def run_v2(cfg, days, u, book, meta_u, ivp):
                                 # 新合约以新价格为成本，跟踪最高价重置；权利金止损恢复为正常比例
                                 p.entry, p.peak, p.be = newpx, ct["long_px"], False
                                 realized -= realized_adj
-                    elif not p.partial and i - p.open_i == 5 and prog < 0.5:
+                    elif not p.partial and i - p.open_i == (cfg.get("tstop_short", 5) if p.dir < 0 else 5) and prog < 0.5:
                         close(p, p.lots_open, cl, d, "时间止损")
                     elif broke and not p.pending:
                         p.pending = "逻辑止损（次日开盘）"
@@ -285,6 +299,8 @@ def run_v2(cfg, days, u, book, meta_u, ivp):
                 continue
             entry = ct["long_px"] + slip(ct["long_px"])
             stop_pct = 0.4 if s["strat"].startswith(("L1", "L2", "S2")) else 0.5
+            if s["dir"] < 0 and cfg.get("short_stop_pct"):
+                stop_pct = cfg["short_stop_pct"]
             risk = 1000 if tier == "正常" else 500
             lots = math.floor(risk / (entry * 10000 * stop_pct))
             if lots < 1:
@@ -328,14 +344,15 @@ def main():
     sim = all_days[all_days.index(next(d for d in all_days if d >= a.start)) - 60:]
 
     rec = dict(trail="ma5", pullback=True, iv_skip=True, iv_long=False, iv_short=True, vol_mult=1.2, s2="off")
+    rec2 = {**rec, "s3": True, "s4": True, "bear_only": True, "trail_short": "ma5", "short_stop_pct": 0.6, "tstop_short": 5}
     variants = [
         {"key": "A", "name": "A 旧规则（v1）", "old": True},
-        {"key": "B", "name": "B 新规则（推荐）：剩余仓位跌破5日线清仓", **rec},
-        {"key": "C", "name": "C 同B，剩余仓位期权从最高回落10%清仓", **{**rec, "trail": "opt10"}},
-        {"key": "D", "name": "D 同B，剩余仓位期权从最高回落20%清仓", **{**rec, "trail": "opt20"}},
-        {"key": "E", "name": "E 同B，加上S2跌破前低做空", **{**rec, "s2": "any"}},
-        {"key": "F", "name": "F 同B，做多也用IV过滤", **{**rec, "iv_long": True}},
-        {"key": "G", "name": "G 同B，做空不用IV过滤", **{**rec, "iv_short": False}},
+        {"key": "B", "name": "B 第一版新规则（只有S1做空）", **rec},
+        {"key": "H", "name": "H 新推荐：加S3/S4反抽受阻做空，只在60日线向下时做空", **rec2},
+        {"key": "I", "name": "I 同H，做空不用IV过滤", **{**rec2, "iv_short": False}},
+        {"key": "J", "name": "J 同H，再加S2跌破前低（只在下降趋势）", **{**rec2, "s2": "down"}},
+        {"key": "K", "name": "K 同H，但不限空头环境", **{**rec2, "bear_only": False}},
+        {"key": "C", "name": "C 同H，剩余仓位期权从最高回落10%清仓", **{**rec2, "trail": "opt10", "trail_short": "opt10"}},
     ]
     res = []
     for v in variants:
@@ -364,6 +381,9 @@ def main():
          "- 做空 S2 跌破前低（推荐方案不做，E 方案对照）：收盘首次跌破 20 日最低收盘，且在 20 日线或 60 日线下方，趋势状态不是上升；止损 = max(前低, 收盘 + 1ATR)；目标 = 2:1；不要求放量",
          "- 出场：逻辑止损（次日开盘）、权利金止损（L1/L2/S2 −40%，其他 −50%）、未进入跟踪阶段时 5 日时间止损；"
          "+50% 或到达 2:1 目标（先到者）平一半、只执行一次、剩余止损提到保本；剩余仓位按各方案的跟踪规则出场；剩余不到 7 天：已进入跟踪阶段就移仓到下个月，否则平仓；长假前减半",
+         "- 做空 S3 反抽60日线受阻：20 日线在 60 日线下方，近 3 天最高价碰到 60 日线附近，当天阴线且收盘低于前一天、在 60 日线下方；止损 = max(近5日最高, 60日线, 收盘 + 1ATR)；目标 = 2:1",
+         "- 做空 S4 反抽20日线受阻：下降趋势中近 3 天最高价碰到 20 日线附近，当天阴线收低、在 20 日线下方；止损 = max(近5日最高, 20日线, 收盘 + 1ATR)；目标 = 2:1",
+         "- 空头环境过滤（H 方案起）：只在 60 日线低于 20 天前时做空；做空权利金止损 −60%",
          "- 风控：每周按净值回撤分档；保护档和停手档不开新仓（v2 不做价差）。每月最多 6 笔。\n",
          "## 结果对比\n",
          v1.md_table(pd.DataFrame([{"方案": r["v"]["name"], **r["stats"]} for r in res]))]
