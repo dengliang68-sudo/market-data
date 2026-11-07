@@ -230,11 +230,11 @@ def option_panel(days: list[str]) -> dict:
         maxc = oi_by_k[oi_by_k.call_put == "C"].nlargest(1, "oi")
         maxp = oi_by_k[oi_by_k.call_put == "P"].nlargest(1, "oi")
 
-        # 候选合约：剩余 20–45 天（没有就取剩余 ≥10 天最近的月份），Delta 0.4–0.6
-        cand_m = next((c["maturity"] for c in cal if 20 <= c["days_left"] <= 45), None) \
-            or next((c["maturity"] for c in cal if c["days_left"] >= 10), None)
+        # 候选合约：剩余 20–45 天的月份；没有的话，把剩余 ≥10 天的月份都列出来，由简报判断
+        cand_ms = [c["maturity"] for c in cal if 20 <= c["days_left"] <= 45] \
+            or [c["maturity"] for c in cal if c["days_left"] >= 10]
         cands = []
-        if cand_m:
+        for cand_m in cand_ms:
             T = (datetime.strptime(cand_m, "%Y%m%d") - dt).days / 365
             ch = today[(today.maturity_date == cand_m) & (~today.adjusted)]
             for row in ch.itertuples():
@@ -242,7 +242,8 @@ def option_panel(days: list[str]) -> dict:
                 sig = implied_vol(px, S, row.exercise_price, T, r, row.call_put)
                 dl = bs_delta(S, row.exercise_price, T, r, sig, row.call_put)
                 if np.isfinite(dl) and 0.4 <= abs(dl) <= 0.6:
-                    cands.append({"ts_code": row.ts_code, "name": row.name, "cp": "认购" if row.call_put == "C" else "认沽",
+                    cands.append({"maturity": cand_m, "days_left": (datetime.strptime(cand_m, "%Y%m%d") - dt).days,
+                                  "ts_code": row.ts_code, "name": row.name, "cp": "认购" if row.call_put == "C" else "认沽",
                                   "strike": row.exercise_price, "price": px, "iv": round(sig * 100, 1),
                                   "delta": round(dl, 2), "oi": int(row.oi), "vol": int(row.vol),
                                   "cost_per_lot": round(px * 10000, 0)})
@@ -256,7 +257,7 @@ def option_panel(days: list[str]) -> dict:
             "pcr_vol": round(pv / cv, 2) if cv else None, "pcr_oi": round(po / co, 2) if co else None,
             "max_oi_call_strike": float(maxc.exercise_price.iloc[0]) if len(maxc) else None,
             "max_oi_put_strike": float(maxp.exercise_price.iloc[0]) if len(maxp) else None,
-            "candidate_month": cand_m,
-            "candidates": sorted(cands, key=lambda x: (x["cp"], x["strike"])),
+            "candidate_months": cand_ms,
+            "candidates": sorted(cands, key=lambda x: (x["maturity"], x["cp"], x["strike"])),
         })
     return out

@@ -57,16 +57,19 @@ def main():
         for c in u["calendar"]:
             L.append(f"| {u['name']} | {c['maturity']} | {c['days_left']} | {c['note']} |")
 
-    L.append("\n## 候选合约（剩余 20–45 天，Delta 0.4–0.6，已排除分红调整合约）\n")
-    L.append("只列出合约数据，是否交易要看趋势状态和触发条件：上升趋势只看认购，下降趋势只看认沽，震荡不做买方。\n")
+    L.append("\n## 候选合约（Delta 0.4–0.6，已排除分红调整合约）\n")
+    L.append("优先列剩余 20–45 天的月份；没有符合的月份时，列出所有剩余 ≥10 天的月份，由简报按指引取舍。"
+             "只列出合约数据，是否交易要看趋势状态和触发条件：上升趋势只看认购，下降趋势只看认沽，震荡不做买方。\n")
     for u in p["underlyings"]:
-        L.append(f"\n### {u['name']}（{u['candidate_month']} 到期，趋势：{u['state']}）\n")
+        L.append(f"\n### {u['name']}（趋势：{u['state']}；月份：{'、'.join(u['candidate_months'])}）\n")
         if not u["candidates"]:
             L.append("（无符合条件的合约）\n")
             continue
-        L += ["| 方向 | 合约代码 | 行权价 | 收盘价 | 每张权利金（元） | IV% | Delta | 持仓量 | 成交量 |", "|---|---|---|---|---|---|---|---|---|"]
+        L += ["| 到期日 | 剩余天数 | 方向 | 合约代码 | 行权价 | 收盘价 | 每张权利金（元） | IV% | Delta | 持仓量 | 成交量 |",
+              "|---|---|---|---|---|---|---|---|---|---|---|"]
         for c in u["candidates"]:
-            L.append(f"| {c['cp']} | {c['ts_code']} | {c['strike']} | {c['price']} | {c['cost_per_lot']} | {c['iv']} | {c['delta']} | {c['oi']} | {c['vol']} |")
+            L.append(f"| {c['maturity']} | {c['days_left']} | {c['cp']} | {c['ts_code']} | {c['strike']} | {c['price']} | "
+                     f"{c['cost_per_lot']} | {c['iv']} | {c['delta']} | {c['oi']} | {c['vol']} |")
 
     text = "\n".join(L) + "\n"
     (REPORTS / f"{d}_opt.md").write_text(text, encoding="utf-8")
