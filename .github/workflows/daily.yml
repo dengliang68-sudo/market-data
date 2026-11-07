@@ -1,0 +1,40 @@
+name: daily-data
+on:
+  schedule:
+    - cron: "40 22 * * 1-5"   # 北京时间 周二至周六 06:40（早报）
+    - cron: "30 8 * * 1-5"    # 北京时间 周一至周五 16:30（晚报）
+  workflow_dispatch:
+    inputs:
+      session:
+        description: "am 或 pm"
+        required: true
+        default: "pm"
+permissions:
+  contents: write
+concurrency: daily-data
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      TZ: Asia/Shanghai
+      TS_TOKEN: ${{ secrets.TS_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r requirements.txt
+      - name: 选择 am / pm
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then S="${{ inputs.session }}"
+          elif [ "${{ github.event.schedule }}" = "40 22 * * 1-5" ]; then S=am; else S=pm; fi
+          echo "S=$S" >> $GITHUB_ENV
+      - run: python run_review.py --session $S
+      - name: 提交回仓库
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add data reports
+          git diff --cached --quiet || git commit -m "${S}数据 $(date +%Y%m%d)"
+          git pull --rebase origin main && git push origin main
