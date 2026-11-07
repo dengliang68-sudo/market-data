@@ -272,9 +272,11 @@ def run_v2(cfg, days, u, book, meta_u, ivp):
             if cl:
                 unreal = (cl - pos.entry) * 10000 * pos.lots_open
         eq = CAP + realized + unreal
-        peak_eq = max(peak_eq, eq)
-        dd = (peak_eq - eq) / CAP
         eq_curve.append((d, round(eq, 1)))
+        # 风控回撤按已平仓的盈亏算：持仓中浮盈的回吐不算亏损（跟踪止盈本来就要回吐一部分）
+        eq_risk = CAP + realized
+        peak_eq = max(peak_eq, eq_risk)
+        dd = (peak_eq - eq_risk) / CAP
         week_end = i + 1 >= len(days) or dt(days[i + 1]).isocalendar()[1] != dt(d).isocalendar()[1]
         if week_end and i >= pause_until:
             new = "正常" if dd < 0.05 else "减速" if dd < 0.07 else "保护" if dd < 0.10 else "停手"
@@ -285,7 +287,7 @@ def run_v2(cfg, days, u, book, meta_u, ivp):
                         close(pos, pos.lots_open, c2, d, "回撤10%熔断")
                     finish(pos, d)
                     pos = None
-                pause_until, peak_eq = i + 10, eq
+                pause_until, peak_eq = i + 10, eq_risk
             if new != tier:
                 tier_log.append((d, tier, new, round(dd * 100, 1)))
             tier = new
@@ -297,8 +299,8 @@ def run_v2(cfg, days, u, book, meta_u, ivp):
             continue
         sigs = signals_v2(r, cfg["pullback"], cfg)
         for s in sigs:
-            if tier in ("停手", "保护"):
-                decide(d, s, f"放弃：风控{tier}档")
+            if tier == "停手":
+                decide(d, s, "放弃：风控停手档")
                 continue
             if pos and cfg.get("reverse") and pos.dir != s["dir"] and s["strat"][:2] in cfg["reverse"]:
                 c_old = book.price(pos.leg, d)
@@ -325,7 +327,7 @@ def run_v2(cfg, days, u, book, meta_u, ivp):
             stop_pct = 0.4 if s["strat"].startswith(("L1", "L2", "S2")) else 0.5
             if s["dir"] < 0 and cfg.get("short_stop_pct"):
                 stop_pct = cfg["short_stop_pct"]
-            risk = 1000 if tier == "正常" else 500
+            risk = {"正常": 1000, "减速": 500, "保护": 300}[tier]
             lots = math.floor(risk / (entry * 10000 * stop_pct))
             if lots < 1:
                 decide(d, s, "放弃：一张的风险就超过预算")
@@ -412,7 +414,7 @@ def main():
          "- L1 突破放宽（M 方案起）：不再要求趋势状态为上升，改为收盘在 60 日线上方且 60 日线不明显向下",
          "- 跟踪止盈（M 方案）：多单剩余仓位标的跌破 20 日线才清仓；空单剩余仓位一半站上 5 日线平、另一半站上 20 日线平",
          "- 空头环境过滤（H 方案起）：只在 60 日线低于 20 天前时做空；做空权利金止损 −60%",
-         "- 风控：每周按净值回撤分档；保护档和停手档不开新仓（v2 不做价差）。每月最多 6 笔。\n",
+         "- 风控：每周按已平仓盈亏计算的回撤分档（浮盈回吐不算）：正常 1000 元、减速 500 元、保护 300 元；停手档平仓停 10 个交易日。每月最多 6 笔。\n",
          "## 结果对比\n",
          v1.md_table(pd.DataFrame([{"方案": r["v"]["name"], **r["stats"]} for r in res]))]
     for r in res:
