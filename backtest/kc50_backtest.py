@@ -45,28 +45,33 @@ def frame(df: pd.DataFrame) -> pd.DataFrame:
     u["ma10"] = c.rolling(10).mean()
     u["low10"] = l.rolling(10).min().shift(1)       # 平台低点：前 10 日最低价
     u["high10"] = h.rolling(10).max().shift(1)
-    u["touch60"] = (l <= u["ma60"] * 1.02).astype(float).rolling(15).max() > 0      # 近15天回踩到60日线附近
-    u["held60"] = (c / u["ma60"]).rolling(15).min() >= 0.97                          # 近15天收盘没有有效跌破60日线
-    u["ma60_ok"] = u["ma60"] >= u["ma60"].shift(10) * 0.995                          # 60日线没有明显向下
+    u["touch60"] = (l <= u["ma60"] * 1.02).astype(float).rolling(20).max() > 0      # 近20天回踩到60日线附近
+    u["held60"] = (c / u["ma60"]).rolling(20).min() >= 0.96                          # 近20天收盘没有有效跌破60日线
+    u["ma60_ok"] = u["ma60"] >= u["ma60"].shift(10) * 0.98                           # 60日线没有明显向下
+    u["fresh_up"] = c.shift(1) <= u["hi20"].shift(1)                                  # 昨天还没突破：今天是第一次突破
+    u["fresh_dn"] = c.shift(1) >= u["lo20"].shift(1)
     u["above20_recent"] = (c.shift(1) >= u["ma20"].shift(1)).astype(float).rolling(3).max() > 0
     u["below20_recent"] = (c.shift(1) <= u["ma20"].shift(1)).astype(float).rolling(3).max() > 0
-    u["ext_up"] = ((c - u["ma20"]) > EXT_ATR * u["atr"]) | (u["ma20"] / u["ma60"] - 1 > EXT_GAP)
-    u["ext_dn"] = ((u["ma20"] - c) > EXT_ATR * u["atr"]) | (u["ma20"] / u["ma60"] - 1 < -EXT_GAP)
+    # 偏离过滤按"突破前一天"的位置算：当天的大阳线/大阴线本身不算偏离
+    gap = u["ma20"] / u["ma60"] - 1
+    u["ext_up"] = (((c - u["ma20"]) > EXT_ATR * u["atr"]) | (gap > EXT_GAP)).shift(1).fillna(False).astype(bool)
+    u["ext_dn"] = (((u["ma20"] - c) > EXT_ATR * u["atr"]) | (gap < -EXT_GAP)).shift(1).fillna(False).astype(bool)
     return u
 
 
-def signals_v2(u: pd.Series, use_pullback: bool) -> list[dict]:
+def signals_v2(u: pd.Series, use_pullback: bool, cfg: dict | None = None) -> list[dict]:
+    cfg = cfg or {}
     if any(pd.isna(u[k]) for k in ["ma60", "hi20", "vol20_prev", "atr", "low10"]):
         return []
     c, a = u.close, u.atr
-    vol_ok = u.vol >= 1.3 * u.vol20_prev
+    vol_ok = u.vol >= cfg.get("vol_mult", 1.3) * u.vol20_prev
     out = []
     # ---- 做多 ----
     if not u.ext_up:
-        if c > u.hi20 and vol_ok and c > u.open and u.touch60 and u.held60 and u.ma60_ok and c > u.ma20 and u.state != "上升":
+        if c > u.hi20 and u.fresh_up and vol_ok and c > u.open and u.touch60 and u.held60 and u.ma60_ok and c > u.ma20:
             stop = min(u.ma20, c - a)
             out.append(dict(dir=1, strat="L2回踩60日线起涨", stop=stop, target=c + 2 * (c - stop)))
-        elif u.state == "上升" and c > u.hi20 and vol_ok:
+        elif u.state == "上升" and c > u.hi20 and u.fresh_up and vol_ok:
             stop = min(u.hi20, c - a)
             out.append(dict(dir=1, strat="L1趋势突破", stop=stop, target=c + 2 * (c - stop)))
         elif use_pullback and u.state == "上升" and u.touch_up and c > u.open and c > u.prev_close:
@@ -77,7 +82,8 @@ def signals_v2(u: pd.Series, use_pullback: bool) -> list[dict]:
     if not u.ext_dn:
         if c < u.ma20 and c < u.low10 and u.above20_recent and u.ma60 < c and (c - u.ma60) >= 2 * (u.ma20 - c):
             out.append(dict(dir=-1, strat="S1跌破20日线和平台", stop=u.ma20, target=u.ma60))
-        elif c < u.lo20 and (c < u.ma20 or c < u.ma60) and u.state != "上升":
+        elif cfg.get("s2", "any") != "off" and c < u.lo20 and u.fresh_dn and (c < u.ma20 or c < u.ma60) \
+                and (u.state == "下降" if cfg.get("s2") == "down" else u.state != "上升"):
             stop = max(u.lo20, c + a)
             out.append(dict(dir=-1, strat="S2跌破前低", stop=stop, target=c - 2 * (stop - c)))
     return out
@@ -257,7 +263,7 @@ def run_v2(cfg, days, u, book, meta_u, ivp):
         # ---------- 开仓 ----------
         if i < 60 or i >= len(days) - 1:
             continue
-        sigs = signals_v2(r, cfg["pullback"])
+        sigs = signals_v2(r, cfg["pullback"], cfg)
         for s in sigs:
             if tier in ("停手", "保护"):
                 decide(d, s, f"放弃：风控{tier}档")
@@ -269,7 +275,8 @@ def run_v2(cfg, days, u, book, meta_u, ivp):
                 decide(d, s, "放弃：本月已开6笔")
                 continue
             iv = ivp.get(d)
-            if cfg["iv_skip"] and iv is not None and iv >= 70:
+            iv_rule = cfg.get("iv_long" if s["dir"] > 0 else "iv_short", cfg["iv_skip"])
+            if iv_rule and iv is not None and iv >= 70:
                 decide(d, s, "放弃：IV偏高")
                 continue
             ct = v1.pick_contract(book, meta_u, d, "C" if s["dir"] > 0 else "P", r.close, False)
@@ -320,14 +327,15 @@ def main():
     ivp = iv.rolling(250, min_periods=120).apply(lambda x: (x <= x[-1]).mean() * 100, raw=True).dropna().to_dict()
     sim = all_days[all_days.index(next(d for d in all_days if d >= a.start)) - 60:]
 
+    rec = dict(trail="ma5", pullback=True, iv_skip=True, iv_long=False, iv_short=True, vol_mult=1.2, s2="off")
     variants = [
-        {"key": "A", "name": "A 旧规则（v1：只做科创50，IV高不做）", "old": True},
-        {"key": "B", "name": "B 新规则·剩余仓位期权从最高回落10%清仓", "trail": "opt10", "pullback": True, "iv_skip": True},
-        {"key": "C", "name": "C 新规则·剩余仓位期权从最高回落20%清仓", "trail": "opt20", "pullback": True, "iv_skip": True},
-        {"key": "D", "name": "D 新规则·剩余仓位标的跌破5日线清仓", "trail": "ma5", "pullback": True, "iv_skip": True},
-        {"key": "E", "name": "E 新规则·剩余仓位标的跌破10日线清仓", "trail": "ma10", "pullback": True, "iv_skip": True},
-        {"key": "F", "name": "F 同B，但不用IV过滤", "trail": "opt10", "pullback": True, "iv_skip": False},
-        {"key": "G", "name": "G 同B，但去掉回调上车（L3）", "trail": "opt10", "pullback": False, "iv_skip": True},
+        {"key": "A", "name": "A 旧规则（v1）", "old": True},
+        {"key": "B", "name": "B 新规则（推荐）：剩余仓位跌破5日线清仓", **rec},
+        {"key": "C", "name": "C 同B，剩余仓位期权从最高回落10%清仓", **{**rec, "trail": "opt10"}},
+        {"key": "D", "name": "D 同B，剩余仓位期权从最高回落20%清仓", **{**rec, "trail": "opt20"}},
+        {"key": "E", "name": "E 同B，加上S2跌破前低做空", **{**rec, "s2": "any"}},
+        {"key": "F", "name": "F 同B，做多也用IV过滤", **{**rec, "iv_long": True}},
+        {"key": "G", "name": "G 同B，做空不用IV过滤", **{**rec, "iv_short": False}},
     ]
     res = []
     for v in variants:
@@ -347,12 +355,13 @@ def main():
     L = [f"# 科创50ETF 期权策略回测：新旧规则对比（{a.start}–{end}）\n",
          f"生成时间 {datetime.now().strftime('%Y-%m-%d %H:%M')}。本金 10 万，单笔风险 1000 元（减速档 500 元），只做科创50ETF期权，一次只持有一笔。\n",
          "## 新规则（v2）要点\n",
-         "- 做多 L1 趋势突破：上升趋势 + 收盘创 20 日新高 + 放量 1.3 倍；止损 = min(突破位, 收盘 − 1ATR)；目标 = 2:1",
-         "- 做多 L2 回踩60日线起涨：近 15 天回踩到 60 日线附近（最低价 ≤ MA60×1.02）且收盘没跌破（≥ MA60×0.97）、60 日线不向下，当天阳线放量 1.3 倍创 20 日新高、站上 20 日线；不要求趋势状态为上升；止损 = min(MA20, 收盘 − 1ATR)；目标 = 2:1",
+         "- 做多 L1 趋势突破：上升趋势 + 收盘首次创 20 日新高 + 放量（推荐方案 1.2 倍）；止损 = min(突破位, 收盘 − 1ATR)；目标 = 2:1",
+         "- 做多 L2 回踩60日线起涨：近 20 天回踩到 60 日线附近（最低价 ≤ MA60×1.02）且收盘没跌破（≥ MA60×0.96）、60 日线不明显向下，当天阳线放量、首次创 20 日新高、站上 20 日线；不要求趋势状态为上升；止损 = min(MA20, 收盘 − 1ATR)；目标 = 2:1",
          "- 做多 L3 回调上车（旧规则②）：止损 = min(近5日最低, 收盘 − 1ATR)，目标 = 前高，盈亏比 ≥ 2",
-         f"- 偏离过滤：收盘离 20 日线超过 {EXT_ATR} 倍 ATR，或 20 日线离 60 日线超过 {int(EXT_GAP*100)}%，不追（做空对称）",
+         f"- 偏离过滤（按信号前一天判断）：收盘离 20 日线超过 {EXT_ATR} 倍 ATR，或 20 日线离 60 日线超过 {int(EXT_GAP*100)}%，不追（做空对称）",
+         "- IV 过滤（推荐方案）：只对做空生效；做多不过滤，因为科创50大涨时 IV 往往同步冲高",
          "- 做空 S1 跌破20日线和平台：前 3 天内还在 20 日线上方，今天收盘跌破 20 日线，并跌破前 10 日最低价；止损 = 20 日线；目标 = 60 日线；盈亏比 ≥ 2；不要求放量",
-         "- 做空 S2 跌破前低：收盘跌破 20 日最低收盘，且在 20 日线或 60 日线下方，趋势状态不是上升；止损 = max(前低, 收盘 + 1ATR)；目标 = 2:1；不要求放量",
+         "- 做空 S2 跌破前低（推荐方案不做，E 方案对照）：收盘首次跌破 20 日最低收盘，且在 20 日线或 60 日线下方，趋势状态不是上升；止损 = max(前低, 收盘 + 1ATR)；目标 = 2:1；不要求放量",
          "- 出场：逻辑止损（次日开盘）、权利金止损（L1/L2/S2 −40%，其他 −50%）、未进入跟踪阶段时 5 日时间止损；"
          "+50% 或到达 2:1 目标（先到者）平一半、只执行一次、剩余止损提到保本；剩余仓位按各方案的跟踪规则出场；剩余不到 7 天：已进入跟踪阶段就移仓到下个月，否则平仓；长假前减半",
          "- 风控：每周按净值回撤分档；保护档和停手档不开新仓（v2 不做价差）。每月最多 6 笔。\n",
