@@ -42,9 +42,14 @@
    "pcr_oi": 0.72,
    "max_oi_call_strike": 3.0,
    "max_oi_put_strike": 2.85,
-   "candidate_month": "20261125",
+   "candidate_months": [
+    "20261125",
+    "20261223"
+   ],
    "candidates": [
     {
+     "maturity": "20261125",
+     "days_left": 19,
      "ts_code": "10012448.SH",
      "name": "50ETF沽11月2900",
      "cp": "认沽",
@@ -57,6 +62,8 @@
      "cost_per_lot": 401.0
     },
     {
+     "maturity": "20261125",
+     "days_left": 19,
      "ts_code": "10012439.SH",
      "name": "50ETF购11月2900",
      "cp": "认购",
@@ -67,6 +74,48 @@
      "oi": 71412,
      "vol": 78668,
      "cost_per_lot": 382.0
+    },
+    {
+     "maturity": "20261223",
+     "days_left": 47,
+     "ts_code": "10011436.SH",
+     "name": "50ETF沽12月2900",
+     "cp": "认沽",
+     "strike": 2.9,
+     "price": 0.0743,
+     "iv": 18.8,
+     "delta": -0.47,
+     "oi": 15077,
+     "vol": 7309,
+     "cost_per_lot": 743.0
+    },
+    {
+     "maturity": "20261223",
+     "days_left": 47,
+     "ts_code": "10011437.SH",
+     "name": "50ETF沽12月2950",
+     "cp": "认沽",
+     "strike": 2.95,
+     "price": 0.1036,
+     "iv": 19.2,
+     "delta": -0.57,
+     "oi": 9629,
+     "vol": 2224,
+     "cost_per_lot": 1036.0
+    },
+    {
+     "maturity": "20261223",
+     "days_left": 47,
+     "ts_code": "10011427.SH",
+     "name": "50ETF购12月2900",
+     "cp": "认购",
+     "strike": 2.9,
+     "price": 0.058,
+     "iv": 13.1,
+     "delta": 0.53,
+     "oi": 18336,
+     "vol": 10111,
+     "cost_per_lot": 580.0
     }
    ]
   },
@@ -112,9 +161,14 @@
    "pcr_oi": 0.68,
    "max_oi_call_strike": 4.3,
    "max_oi_put_strike": 4.1,
-   "candidate_month": "20261125",
+   "candidate_months": [
+    "20261125",
+    "20261223"
+   ],
    "candidates": [
     {
+     "maturity": "20261125",
+     "days_left": 19,
      "ts_code": "10012530.SH",
      "name": "300ETF沽11月4100",
      "cp": "认沽",
@@ -127,6 +181,8 @@
      "cost_per_lot": 698.0
     },
     {
+     "maturity": "20261125",
+     "days_left": 19,
      "ts_code": "10012529.SH",
      "name": "300ETF购11月4100",
      "cp": "认购",
@@ -137,6 +193,62 @@
      "oi": 48273,
      "vol": 70966,
      "cost_per_lot": 878.0
+    },
+    {
+     "maturity": "20261223",
+     "days_left": 47,
+     "ts_code": "10012434.SH",
+     "name": "300ETF沽12月4100",
+     "cp": "认沽",
+     "strike": 4.1,
+     "price": 0.1175,
+     "iv": 22.6,
+     "delta": -0.45,
+     "oi": 29891,
+     "vol": 14183,
+     "cost_per_lot": 1175.0
+    },
+    {
+     "maturity": "20261223",
+     "days_left": 47,
+     "ts_code": "10012134.SH",
+     "name": "300ETF沽12月4200",
+     "cp": "认沽",
+     "strike": 4.2,
+     "price": 0.172,
+     "iv": 22.7,
+     "delta": -0.56,
+     "oi": 32506,
+     "vol": 4760,
+     "cost_per_lot": 1720.0
+    },
+    {
+     "maturity": "20261223",
+     "days_left": 47,
+     "ts_code": "10012433.SH",
+     "name": "300ETF购12月4100",
+     "cp": "认购",
+     "strike": 4.1,
+     "price": 0.1261,
+     "iv": 18.7,
+     "delta": 0.56,
+     "oi": 15843,
+     "vol": 6676,
+     "cost_per_lot": 1261.0
+    },
+    {
+     "maturity": "20261223",
+     "days_left": 47,
+     "ts_code": "10012133.SH",
+     "name": "300ETF购12月4200",
+     "cp": "认购",
+     "strike": 4.2,
+     "price": 0.0803,
+     "iv": 18.7,
+     "delta": 0.42,
+     "oi": 21625,
+     "vol": 11240,
+     "cost_per_lot": 803.0
     }
    ]
   },
@@ -183,9 +295,14 @@
    "pcr_oi": 0.71,
    "max_oi_call_strike": 6.75,
    "max_oi_put_strike": 6.5,
-   "candidate_month": "20261125",
+   "candidate_months": [
+    "20261125",
+    "20261223"
+   ],
    "candidates": [
     {
+     "maturity": "20261125",
+     "days_left": 19,
      "ts_code": "10012482.SH",
      "name": "500ETF沽11月6750",
      "cp": "认沽",
@@ -198,6 +315,8 @@
      "cost_per_lot": 2833.0
     },
     {
+     "maturity": "20261125",
+     "days_left": 19,
      "ts_code": "10012473.SH",
      "name": "500ETF购11月6750",
      "cp": "认购",
@@ -208,6 +327,76 @@
      "oi": 78331,
      "vol": 178381,
      "cost_per_lot": 1555.0
+    },
+    {
+     "maturity": "20261223",
+     "days_left": 47,
+     "ts_code": "10012149.SH",
+     "name": "500ETF沽12月6500",
+     "cp": "认沽",
+     "strike": 6.5,
+     "price": 0.277,
+     "iv": 36.5,
+     "delta": -0.41,
+     "oi": 37524,
+     "vol": 28131,
+     "cost_per_lot": 2770.0
+    },
+    {
+     "maturity": "20261223",
+     "days_left": 47,
+     "ts_code": "10012150.SH",
+     "name": "500ETF沽12月6750",
+     "cp": "认沽",
+     "strike": 6.75,
+     "price": 0.4,
+     "iv": 35.9,
+     "delta": -0.52,
+     "oi": 14432,
+     "vol": 15554,
+     "cost_per_lot": 4000.0
+    },
+    {
+     "maturity": "20261223",
+     "days_left": 47,
+     "ts_code": "10011810.SH",
+     "name": "500ETF沽12月6876A",
+     "cp": "认沽",
+     "strike": 6.876,
+     "price": 0.4708,
+     "iv": 35.3,
+     "delta": -0.58,
+     "oi": 5218,
+     "vol": 2171,
+     "cost_per_lot": 4708.0
+    },
+    {
+     "maturity": "20261223",
+     "days_left": 47,
+     "ts_code": "10012147.SH",
+     "name": "500ETF购12月6500",
+     "cp": "认购",
+     "strike": 6.5,
+     "price": 0.3705,
+     "iv": 31.4,
+     "delta": 0.6,
+     "oi": 13243,
+     "vol": 10964,
+     "cost_per_lot": 3705.0
+    },
+    {
+     "maturity": "20261223",
+     "days_left": 47,
+     "ts_code": "10012148.SH",
+     "name": "500ETF购12月6750",
+     "cp": "认购",
+     "strike": 6.75,
+     "price": 0.2495,
+     "iv": 31.5,
+     "delta": 0.46,
+     "oi": 18295,
+     "vol": 20240,
+     "cost_per_lot": 2495.0
     }
    ]
   },
@@ -253,9 +442,14 @@
    "pcr_oi": 0.6,
    "max_oi_call_strike": 1.4,
    "max_oi_put_strike": 1.3,
-   "candidate_month": "20261125",
+   "candidate_months": [
+    "20261125",
+    "20261223"
+   ],
    "candidates": [
     {
+     "maturity": "20261125",
+     "days_left": 19,
      "ts_code": "10012578.SH",
      "name": "科创50沽11月1300",
      "cp": "认沽",
@@ -268,6 +462,8 @@
      "cost_per_lot": 575.0
     },
     {
+     "maturity": "20261125",
+     "days_left": 19,
      "ts_code": "10012566.SH",
      "name": "科创50沽11月1350",
      "cp": "认沽",
@@ -280,6 +476,8 @@
      "cost_per_lot": 820.0
     },
     {
+     "maturity": "20261125",
+     "days_left": 19,
      "ts_code": "10012577.SH",
      "name": "科创50购11月1300",
      "cp": "认购",
@@ -292,6 +490,8 @@
      "cost_per_lot": 825.0
     },
     {
+     "maturity": "20261125",
+     "days_left": 19,
      "ts_code": "10012565.SH",
      "name": "科创50购11月1350",
      "cp": "认购",
@@ -302,6 +502,90 @@
      "oi": 96145,
      "vol": 239336,
      "cost_per_lot": 575.0
+    },
+    {
+     "maturity": "20261223",
+     "days_left": 47,
+     "ts_code": "10011516.SH",
+     "name": "科创50沽12月1300",
+     "cp": "认沽",
+     "strike": 1.3,
+     "price": 0.0873,
+     "iv": 53.8,
+     "delta": -0.42,
+     "oi": 83294,
+     "vol": 40136,
+     "cost_per_lot": 873.0
+    },
+    {
+     "maturity": "20261223",
+     "days_left": 47,
+     "ts_code": "10011488.SH",
+     "name": "科创50沽12月1350",
+     "cp": "认沽",
+     "strike": 1.35,
+     "price": 0.1123,
+     "iv": 52.9,
+     "delta": -0.5,
+     "oi": 65699,
+     "vol": 21372,
+     "cost_per_lot": 1123.0
+    },
+    {
+     "maturity": "20261223",
+     "days_left": 47,
+     "ts_code": "10011489.SH",
+     "name": "科创50沽12月1400",
+     "cp": "认沽",
+     "strike": 1.4,
+     "price": 0.1416,
+     "iv": 52.4,
+     "delta": -0.57,
+     "oi": 22378,
+     "vol": 11414,
+     "cost_per_lot": 1416.0
+    },
+    {
+     "maturity": "20261223",
+     "days_left": 47,
+     "ts_code": "10011515.SH",
+     "name": "科创50购12月1300",
+     "cp": "认购",
+     "strike": 1.3,
+     "price": 0.1091,
+     "iv": 50.3,
+     "delta": 0.58,
+     "oi": 27052,
+     "vol": 17282,
+     "cost_per_lot": 1091.0
+    },
+    {
+     "maturity": "20261223",
+     "days_left": 47,
+     "ts_code": "10011479.SH",
+     "name": "科创50购12月1350",
+     "cp": "认购",
+     "strike": 1.35,
+     "price": 0.0848,
+     "iv": 49.8,
+     "delta": 0.5,
+     "oi": 28412,
+     "vol": 30450,
+     "cost_per_lot": 848.0
+    },
+    {
+     "maturity": "20261223",
+     "days_left": 47,
+     "ts_code": "10011480.SH",
+     "name": "科创50购12月1400",
+     "cp": "认购",
+     "strike": 1.4,
+     "price": 0.0675,
+     "iv": 51.0,
+     "delta": 0.42,
+     "oi": 34517,
+     "vol": 27547,
+     "cost_per_lot": 675.0
     }
    ]
   },
@@ -347,9 +631,14 @@
    "pcr_oi": 0.54,
    "max_oi_call_strike": 2.8,
    "max_oi_put_strike": 2.5,
-   "candidate_month": "20261125",
+   "candidate_months": [
+    "20261125",
+    "20261223"
+   ],
    "candidates": [
     {
+     "maturity": "20261125",
+     "days_left": 19,
      "ts_code": "90008318.SZ",
      "name": "创业板ETF沽11月2450",
      "cp": "认沽",
@@ -362,6 +651,8 @@
      "cost_per_lot": 940.0
     },
     {
+     "maturity": "20261125",
+     "days_left": 19,
      "ts_code": "90008290.SZ",
      "name": "创业板ETF沽11月2500",
      "cp": "认沽",
@@ -374,6 +665,8 @@
      "cost_per_lot": 1175.0
     },
     {
+     "maturity": "20261125",
+     "days_left": 19,
      "ts_code": "90008282.SZ",
      "name": "创业板ETF沽11月2550",
      "cp": "认沽",
@@ -386,6 +679,8 @@
      "cost_per_lot": 1457.0
     },
     {
+     "maturity": "20261125",
+     "days_left": 19,
      "ts_code": "90008316.SZ",
      "name": "创业板ETF购11月2450",
      "cp": "认购",
@@ -398,6 +693,8 @@
      "cost_per_lot": 1269.0
     },
     {
+     "maturity": "20261125",
+     "days_left": 19,
      "ts_code": "90008289.SZ",
      "name": "创业板ETF购11月2500",
      "cp": "认购",
@@ -410,6 +707,8 @@
      "cost_per_lot": 1005.0
     },
     {
+     "maturity": "20261125",
+     "days_left": 19,
      "ts_code": "90008281.SZ",
      "name": "创业板ETF购11月2550",
      "cp": "认购",
@@ -420,6 +719,118 @@
      "oi": 52277,
      "vol": 99593,
      "cost_per_lot": 779.0
+    },
+    {
+     "maturity": "20261223",
+     "days_left": 47,
+     "ts_code": "90008322.SZ",
+     "name": "创业板ETF沽12月2450",
+     "cp": "认沽",
+     "strike": 2.45,
+     "price": 0.1482,
+     "iv": 46.8,
+     "delta": -0.43,
+     "oi": 12117,
+     "vol": 12219,
+     "cost_per_lot": 1482.0
+    },
+    {
+     "maturity": "20261223",
+     "days_left": 47,
+     "ts_code": "90008292.SZ",
+     "name": "创业板ETF沽12月2500",
+     "cp": "认沽",
+     "strike": 2.5,
+     "price": 0.173,
+     "iv": 46.4,
+     "delta": -0.48,
+     "oi": 15292,
+     "vol": 18358,
+     "cost_per_lot": 1730.0
+    },
+    {
+     "maturity": "20261223",
+     "days_left": 47,
+     "ts_code": "90008284.SZ",
+     "name": "创业板ETF沽12月2550",
+     "cp": "认沽",
+     "strike": 2.55,
+     "price": 0.1984,
+     "iv": 45.5,
+     "delta": -0.53,
+     "oi": 13327,
+     "vol": 9512,
+     "cost_per_lot": 1984.0
+    },
+    {
+     "maturity": "20261223",
+     "days_left": 47,
+     "ts_code": "90008241.SZ",
+     "name": "创业板ETF沽12月2600",
+     "cp": "认沽",
+     "strike": 2.6,
+     "price": 0.2298,
+     "iv": 45.7,
+     "delta": -0.58,
+     "oi": 12022,
+     "vol": 7049,
+     "cost_per_lot": 2298.0
+    },
+    {
+     "maturity": "20261223",
+     "days_left": 47,
+     "ts_code": "90008320.SZ",
+     "name": "创业板ETF购12月2450",
+     "cp": "认购",
+     "strike": 2.45,
+     "price": 0.1758,
+     "iv": 44.9,
+     "delta": 0.57,
+     "oi": 6085,
+     "vol": 3254,
+     "cost_per_lot": 1758.0
+    },
+    {
+     "maturity": "20261223",
+     "days_left": 47,
+     "ts_code": "90008291.SZ",
+     "name": "创业板ETF购12月2500",
+     "cp": "认购",
+     "strike": 2.5,
+     "price": 0.1501,
+     "iv": 44.3,
+     "delta": 0.52,
+     "oi": 12031,
+     "vol": 12304,
+     "cost_per_lot": 1501.0
+    },
+    {
+     "maturity": "20261223",
+     "days_left": 47,
+     "ts_code": "90008283.SZ",
+     "name": "创业板ETF购12月2550",
+     "cp": "认购",
+     "strike": 2.55,
+     "price": 0.1278,
+     "iv": 44.1,
+     "delta": 0.47,
+     "oi": 11261,
+     "vol": 8635,
+     "cost_per_lot": 1278.0
+    },
+    {
+     "maturity": "20261223",
+     "days_left": 47,
+     "ts_code": "90008239.SZ",
+     "name": "创业板ETF购12月2600",
+     "cp": "认购",
+     "strike": 2.6,
+     "price": 0.108,
+     "iv": 43.8,
+     "delta": 0.42,
+     "oi": 21215,
+     "vol": 14431,
+     "cost_per_lot": 1080.0
     }
    ]
   }
