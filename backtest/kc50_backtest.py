@@ -217,6 +217,27 @@ def run_v2(cfg, days, u, book, meta_u, ivp):
                     elif mode == "ma5":
                         out = (r.close < r.ma5) if p.dir > 0 else (r.close > r.ma5)
                         why = "标的跌破5日线" if p.dir > 0 else "标的站上5日线"
+                    elif mode == "adapt":
+                        strong = (r.state == "上升") if p.dir > 0 else (r.state == "下降")
+                        line = r.ma20 if strong else r.ma5
+                        out = (r.close < line) if p.dir > 0 else (r.close > line)
+                        why = ("趋势强，标的跌破20日线" if strong else "趋势转弱，标的跌破5日线") if p.dir > 0 else \
+                              ("趋势强，标的站上20日线" if strong else "趋势转弱，标的站上5日线")
+                    elif mode.startswith("chand"):
+                        k = float(mode[5:] or 3)
+                        ext = getattr(p, "u_ext", r.close)
+                        ext = max(ext, r.close) if p.dir > 0 else min(ext, r.close)
+                        p.u_ext = ext
+                        out = (r.close < ext - k * r.atr) if p.dir > 0 else (r.close > ext + k * r.atr)
+                        why = f"标的从最高回落超过{k:g}倍ATR" if p.dir > 0 else f"标的从最低反弹超过{k:g}倍ATR"
+                    elif mode == "mix10":
+                        b5 = (r.close < r.ma5) if p.dir > 0 else (r.close > r.ma5)
+                        b10 = (r.close < r.ma10) if p.dir > 0 else (r.close > r.ma10)
+                        if b10:
+                            out, why = True, ("标的跌破10日线" if p.dir > 0 else "标的站上10日线")
+                        elif b5 and not getattr(p, "mix_half", False) and p.lots_open >= 2:
+                            p.mix_half = True
+                            close(p, p.lots_open // 2, cl, d, "标的跌破5日线（平剩余的一半）" if p.dir > 0 else "标的站上5日线（平剩余的一半）")
                     elif mode == "mix":
                         # 剩余仓位一半跌破5日线出，另一半跌破20日线出
                         b5 = (r.close < r.ma5) if p.dir > 0 else (r.close > r.ma5)
@@ -279,7 +300,8 @@ def run_v2(cfg, days, u, book, meta_u, ivp):
         dd = (peak_eq - eq_risk) / CAP
         week_end = i + 1 >= len(days) or dt(days[i + 1]).isocalendar()[1] != dt(d).isocalendar()[1]
         if week_end and i >= pause_until:
-            new = "正常" if dd < 0.05 else "减速" if dd < 0.07 else "保护" if dd < 0.10 else "停手"
+            kk = cfg.get("risk_k", 1)
+            new = "正常" if dd < 0.05 * kk else "减速" if dd < 0.07 * kk else "保护" if dd < 0.10 * kk else "停手"
             if new == "停手" and tier != "停手":
                 if pos:
                     c2 = px(pos.leg, d)
@@ -327,7 +349,7 @@ def run_v2(cfg, days, u, book, meta_u, ivp):
             stop_pct = 0.4 if s["strat"].startswith(("L1", "L2", "S2")) else 0.5
             if s["dir"] < 0 and cfg.get("short_stop_pct"):
                 stop_pct = cfg["short_stop_pct"]
-            risk = {"正常": 1000, "减速": 500, "保护": 300}[tier]
+            risk = {"正常": 1000, "减速": 500, "保护": 300}[tier] * cfg.get("risk_k", 1)
             lots = math.floor(risk / (entry * 10000 * stop_pct))
             if lots < 1:
                 decide(d, s, "放弃：一张的风险就超过预算")
