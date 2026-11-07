@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
     inputs:
       script:
-        description: "opt=多品种回测；kc50=科创50新旧规则对比"
+        description: "opt=多品种回测；kc50=科创50新旧规则对比；xval=跨品种验证"
         required: true
         default: "opt"
       start:
@@ -37,7 +37,9 @@ jobs:
       - name: 回测
         run: |
           if [ -n "${{ inputs.end }}" ]; then E="--end ${{ inputs.end }}"; else E=""; fi
-          if [ "${{ inputs.script }}" = "kc50" ]; then
+          if [ "${{ inputs.script }}" = "xval" ]; then
+            python backtest/xval_backtest.py --start ${{ inputs.start }} $E
+          elif [ "${{ inputs.script }}" = "kc50" ]; then
             python backtest/kc50_backtest.py --start ${{ inputs.start }} $E
           else
             python backtest/opt_backtest.py --start ${{ inputs.start }} --set ${{ inputs.set }} $E
