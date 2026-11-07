@@ -299,7 +299,7 @@ def run_v2(cfg, days, u, book, meta_u, ivp):
         peak_eq = max(peak_eq, eq_risk)
         dd = (peak_eq - eq_risk) / CAP
         week_end = i + 1 >= len(days) or dt(days[i + 1]).isocalendar()[1] != dt(d).isocalendar()[1]
-        if week_end and i >= pause_until:
+        if week_end and i >= pause_until and not cfg.get("tiers_off"):
             kk = cfg.get("risk_k", 1)
             new = "正常" if dd < 0.05 * kk else "减速" if dd < 0.07 * kk else "保护" if dd < 0.10 * kk else "停手"
             if new == "停手" and tier != "停手":
