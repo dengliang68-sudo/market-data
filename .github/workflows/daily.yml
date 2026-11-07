@@ -3,10 +3,11 @@ on:
   schedule:
     - cron: "40 22 * * 1-5"   # 北京时间 周二至周六 06:40（早报）
     - cron: "30 8 * * 1-5"    # 北京时间 周一至周五 16:30（晚报）
+    - cron: "30 12 * * 1-5"   # 北京时间 周一至周五 20:30（期权数据，供次日 8:17 期权盘前简报）
   workflow_dispatch:
     inputs:
       session:
-        description: "am 或 pm"
+        description: "am、pm 或 opt"
         required: true
         default: "pm"
 permissions:
@@ -28,9 +29,11 @@ jobs:
       - name: 选择 am / pm
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then S="${{ inputs.session }}"
-          elif [ "${{ github.event.schedule }}" = "40 22 * * 1-5" ]; then S=am; else S=pm; fi
+          elif [ "${{ github.event.schedule }}" = "40 22 * * 1-5" ]; then S=am
+          elif [ "${{ github.event.schedule }}" = "30 12 * * 1-5" ]; then S=opt; else S=pm; fi
           echo "S=$S" >> $GITHUB_ENV
-      - run: python run_review.py --session $S
+      - run: |
+          if [ "$S" = "opt" ]; then python run_options.py; else python run_review.py --session $S; fi
       - name: 提交回仓库
         run: |
           git config user.name "github-actions"
