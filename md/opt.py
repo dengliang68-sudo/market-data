@@ -250,7 +250,7 @@ def option_panel(days: list[str]) -> dict:
                                   "delta": round(dl, 2), "oi": int(row.oi), "vol": int(row.vol),
                                   "cost_per_lot": round(px * 10000, 0)})
         out["underlyings"].append({
-            "code": code, "name": nm, **ts_,
+            "code": code, "name": f"{nm}（{code[:6]}）", **ts_,
             "calendar": cal,
             "atm_iv": {m: (round(v * 100, 1) if np.isfinite(v) else None) for m, v in iv.items()},
             "iv_ref_month": ref_m, "iv_pctile_60d": round(pctile, 0) if np.isfinite(pctile) else None,
