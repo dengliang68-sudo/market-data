@@ -120,7 +120,8 @@ def signals_v2(u: pd.Series, use_pullback: bool, cfg: dict | None = None) -> lis
 RECOMMENDED = dict(pullback=True, iv_skip=True, iv_long=False, iv_short=True, vol_mult=1.2, s2="off",
                    s3=False, s4=True, bear_only=True, trail="ma5", trail_short="mix", short_stop_pct=0.6,
                    tstop_short=5, l4=True, l1_relax=True, tiers_off=True,
-                   r1={"iv": 95, "k": 1.5}, reverse=("R1",))
+                   r1={"iv": 95, "k": 1.5}, reverse=("R1",),
+                   entry="next_open")   # 收盘后出信号，次日开盘进场（与实际操作一致；2026-11-08 起）
 
 
 # ---------------- 模拟 ----------------
@@ -194,11 +195,45 @@ def run_v2(cfg, days, u, book, meta_u, ivp):
                           "stop": round(float(s["stop"]), 3), "target": round(float(s["target"]), 3),
                           "iv_pct": ivp.get(d), "outcome": outcome})
 
+    queued = None
     for i, d in enumerate(days):
         if d not in u.index:
             continue
         r = u.loc[d]
         gap_next = (dt(days[i + 1]) - dt(d)).days if i + 1 < len(days) else 1
+        # ---------- 次日进场（cfg["entry"] = "next_open" / "next_mid"）：前一天收盘出的信号，今天开盘后成交 ----------
+        if queued:
+            q, queued = queued, None
+            s = q["s"]
+            mode = cfg.get("entry")
+            o_opt, c_opt = book.price(q["leg"], d, "open"), book.price(q["leg"], d)
+            u_px = float(r.open) if mode == "next_open" else (float(r.open) + float(r.close)) / 2
+            if q.get("reverse") and pos:
+                c_old = book.price(pos.leg, d, "open") if mode == "next_open" else book.price(pos.leg, d)
+                if c_old:
+                    close(pos, pos.lots_open, c_old, d, "反向信号，反手（次日）")
+                    finish(pos, d)
+                    pos = None
+            gap_bad = (u_px <= s["stop"]) if s["dir"] > 0 else (u_px >= s["stop"])
+            if pos:
+                decide(d, s, "放弃：已有持仓")
+            elif o_opt is None or c_opt is None:
+                decide(d, s, "放弃：次日没有报价")
+            elif gap_bad:
+                decide(d, s, "放弃：次日开盘已越过标的止损位")
+            else:
+                base = o_opt if mode == "next_open" else (o_opt + c_opt) / 2
+                entry = base + slip(base)
+                lots = math.floor(q["risk"] / (entry * 10000 * q["stop_pct"]))
+                if lots >= 1:
+                    pos = P(dir=s["dir"], strat=s["strat"], leg=q["leg"], lots=lots, entry=entry, stop_pct=q["stop_pct"],
+                            u_entry=u_px, u_stop=s["stop"], u_target=s["target"], open_i=i, maturity=q["maturity"],
+                            risk=lots * entry * 10000 * q["stop_pct"], delta=q["delta"], dl=q["dl"],
+                            ivp=q["ivp"], lots_open=lots)
+                    pos.realized -= FEE * lots
+                    realized -= FEE * lots
+                    month[d[:6]] += 1
+                    decide(d, s, "开仓（次日）")
         # ---------- 持仓管理 ----------
         if pos:
             p = pos
@@ -341,6 +376,28 @@ def run_v2(cfg, days, u, book, meta_u, ivp):
             if tier == "停手":
                 decide(d, s, "放弃：风控停手档")
                 continue
+            rev = bool(pos and cfg.get("reverse") and pos.dir != s["dir"] and s["strat"][:2] in cfg["reverse"])
+            if cfg.get("entry", "close") != "close" and (pos is None or rev):
+                if month[d[:6]] >= 6:
+                    decide(d, s, "放弃：本月已开6笔")
+                    continue
+                iv = ivp.get(d)
+                iv_rule = cfg.get("iv_long" if s["dir"] > 0 else "iv_short", cfg["iv_skip"])
+                if iv_rule and iv is not None and iv >= 70:
+                    decide(d, s, "放弃：IV偏高")
+                    continue
+                ct = v1.pick_contract(book, meta_u, d, "C" if s["dir"] > 0 else "P", r.close, False)
+                if ct is None:
+                    decide(d, s, "放弃：没有符合条件的合约")
+                    continue
+                stop_pct = 0.4 if s["strat"].startswith(("L1", "L2", "S2")) else 0.5
+                if s["dir"] < 0 and cfg.get("short_stop_pct"):
+                    stop_pct = cfg["short_stop_pct"]
+                queued = dict(s=s, leg=ct["long"], maturity=ct["maturity"], delta=ct["delta"], dl=ct["days_left"],
+                              stop_pct=stop_pct, risk=1000 * cfg.get("risk_k", 1), reverse=rev,
+                              ivp=None if iv is None else round(iv))
+                decide(d, s, "信号（次日进场）")
+                break
             if pos and cfg.get("reverse") and pos.dir != s["dir"] and s["strat"][:2] in cfg["reverse"]:
                 c_old = book.price(pos.leg, d)
                 if c_old:
