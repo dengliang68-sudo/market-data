@@ -199,3 +199,9 @@ python run_review.py --session pm --date 20261106   # 指定某个 A股交易日
 | 4 | 持仓和观察池个股的自动跟踪：均线位置、量比、触发条件检查 |
 | 5 | 港股行业板块扫描 |
 | 6 | 回测模块：检验趋势雷达的 🟢 信号、指数基金的回撤加仓档位、期权 A 级信号在历史上的效果 |
+
+## 2026-11-08 更新：推荐规则（含 R1 恐慌反转）
+
+- `backtest/kc50_backtest.py`：`signals_v2` 新增 R1 恐慌反转做多（平值 IV 近 250 日分位 ≥ 95 且收盘在 20 日线下方，止损 = 收盘 − 1.5 ATR，可反手平空）；`RECOMMENDED` 是当前推荐规则的完整配置，回测和每日信号共用。
+- `backtest/recommended_portfolio.py`：只用仓库缓存数据的五品种组合回测（单笔 3%、复利、最多 4 笔/同向 3 笔），输出 `reports/backtest/recommended_portfolio.md`、`recommended_trades.csv`，并初始化 `data/opt_atm_iv_hist.csv`（五品种平值 IV 历史）。
+- `md/opt_rules.py`：`run_options.py` 每天调用，按 `RECOMMENDED` 给五品种出信号，追加 IV 历史、计算 250 日分位，在 `reports/YYYYMMDD_opt.md` 开头写「规则信号」和「关键价位与持仓跟踪」两张表。
