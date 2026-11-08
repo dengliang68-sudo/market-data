@@ -106,7 +106,21 @@ def signals_v2(u: pd.Series, use_pullback: bool, cfg: dict | None = None) -> lis
                 and (u.state == "下降" if cfg.get("s2") == "down" else u.state != "上升"):
             stop = max(u.lo20, c + a)
             out.append(dict(dir=-1, strat="S2跌破前低", stop=stop, target=c - 2 * (stop - c)))
+    # ---- R1 恐慌反转做多（2026-11-08 加入）：期权 IV 处于近一年极高分位、标的在 20 日线下方 ----
+    r1 = cfg.get("r1")
+    ivp_now = u.get("ivp", np.nan) if hasattr(u, "get") else np.nan
+    if r1 and not any(s["dir"] > 0 for s in out) and pd.notna(ivp_now) and ivp_now >= r1.get("iv", 95) \
+            and c < u.ma20 and (not r1.get("bull") or c > u.open):
+        stop = c - r1.get("k", 1.5) * a
+        out.append(dict(dir=1, strat="R1恐慌反转", stop=stop, target=c + 2 * (c - stop)))
     return out
+
+
+# 当前推荐规则（研究总结文档《ETF期权买方策略研究总结》，2026-11-08 版）
+RECOMMENDED = dict(pullback=True, iv_skip=True, iv_long=False, iv_short=True, vol_mult=1.2, s2="off",
+                   s3=False, s4=True, bear_only=True, trail="ma5", trail_short="mix", short_stop_pct=0.6,
+                   tstop_short=5, l4=True, l1_relax=True, tiers_off=True,
+                   r1={"iv": 95, "k": 1.5}, reverse=("R1",))
 
 
 # ---------------- 模拟 ----------------
@@ -139,6 +153,9 @@ class P:
 
 
 def run_v2(cfg, days, u, book, meta_u, ivp):
+    if cfg.get("r1") and "ivp" not in u.columns:
+        u = u.copy()
+        u["ivp"] = pd.Series(ivp, dtype=float).reindex(u.index)
     pos: P | None = None
     trades, eq_curve, decisions = [], [], []
     realized, peak_eq, tier, pause_until = 0.0, CAP, "正常", -1

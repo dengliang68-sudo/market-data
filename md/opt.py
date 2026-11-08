@@ -202,7 +202,7 @@ def option_panel(days: list[str]) -> dict:
             T = max((datetime.strptime(m, "%Y%m%d") - dt).days, 1) / 365
             ch = today[(today.maturity_date == m) & (~today.adjusted)]
             iv[m] = _atm_iv(ch, S, T, r)
-        iv_hist = []
+        iv_hist, iv_dates = [], []
         closes = h.set_index("trade_date")["close"].astype(float)
         for hd in days[-60:]:
             if hd not in closes.index:
@@ -215,6 +215,8 @@ def option_panel(days: list[str]) -> dict:
             m0 = mats[0]
             T = (datetime.strptime(m0, "%Y%m%d") - hdt).days / 365
             iv_hist.append(_atm_iv(sub[sub.maturity_date == m0], closes[hd], T, r))
+            iv_dates.append(hd)
+        iv_series = {dd: round(x * 100, 2) for dd, x in zip(iv_dates, iv_hist) if np.isfinite(x)}
         iv_hist = [x for x in iv_hist if np.isfinite(x)]
         ref_m = next((c["maturity"] for c in cal if c["days_left"] >= 15), months[-1] if months else None)
         iv_now = iv.get(ref_m, np.nan)
@@ -253,7 +255,7 @@ def option_panel(days: list[str]) -> dict:
             "atm_iv": {m: (round(v * 100, 1) if np.isfinite(v) else None) for m, v in iv.items()},
             "iv_ref_month": ref_m, "iv_pctile_60d": round(pctile, 0) if np.isfinite(pctile) else None,
             "iv_mean_60d": round(float(np.mean(iv_hist)) * 100, 1) if iv_hist else None,
-            "iv_level": iv_level,
+            "iv_level": iv_level, "iv_series_60d": iv_series,
             "pcr_vol": round(pv / cv, 2) if cv else None, "pcr_oi": round(po / co, 2) if co else None,
             "max_oi_call_strike": float(maxc.exercise_price.iloc[0]) if len(maxc) else None,
             "max_oi_put_strike": float(maxp.exercise_price.iloc[0]) if len(maxp) else None,

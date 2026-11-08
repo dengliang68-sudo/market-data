@@ -18,7 +18,7 @@ from datetime import datetime
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from md import opt  # noqa: E402
+from md import opt, opt_rules  # noqa: E402
 from md.client import trade_days  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent
@@ -34,9 +34,12 @@ def main():
     p = opt.option_panel(days)
     d = p["date"]
 
+    rules = opt_rules.evaluate(p, days)
+    p["rule_signals"] = rules
     L = [f"# ETF 期权数据摘要（{d} 收盘）\n",
          f"生成时间 {datetime.now().strftime('%Y-%m-%d %H:%M')}；数据来自 Tushare，IV 和 Delta 按 Black-Scholes 用收盘价计算"
          f"（无风险利率 Shibor 3M = {p['rate']}%），未经人工核对。\n",
+         *opt_rules.to_markdown(rules),
          "\n## 品种状态\n",
          "| 品种 | 收盘 | 涨跌% | 趋势 | MA20 | MA60 | MA20 5日斜率% | 10日穿越20日线次数 | 前20日最高/最低收盘 | 量比 | 触发 |",
          "|---|---|---|---|---|---|---|---|---|---|---|"]
