@@ -18,7 +18,7 @@ from backtest import kc50_backtest as K
 from .client import DATA, call
 
 IV_HIST = DATA / "opt_atm_iv_hist.csv"
-RISK = 0.03            # 单笔风险占净值
+RISK = 0.02            # 单笔风险占净值（试运行期 2%，2026-11-09 起；转正后改回 0.03）
 DEMO_EQUITY = 100000   # 报告里举例用的净值
 
 
