@@ -1224,7 +1224,7 @@
       "cost_per_lot": 2495.0
      },
      "loss_per_lot": 1248,
-     "lots_demo": 2,
+     "lots_demo": 1,
      "action": "开仓"
     }
    ],
@@ -1289,7 +1289,7 @@
       "cost_per_lot": 1501.0
      },
      "loss_per_lot": 750,
-     "lots_demo": 3,
+     "lots_demo": 2,
      "action": "开仓"
     }
    ],
