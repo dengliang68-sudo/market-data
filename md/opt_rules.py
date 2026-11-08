@@ -180,6 +180,24 @@ def to_markdown(rows: list[dict]) -> list[str]:
             cts = f"{ct['name']}（{ct['ts_code']}，{ct['price']}，Delta {ct['delta']}，剩 {ct['days_left']} 天）" if ct else "—"
             L.append(f"| {r['name']} | {r['close']} | {r['state']} | {r['iv_pctile_250d']} | {s['dir']} {s['strat']} | {s['action']} | "
                      f"{s['u_stop']} / {s['u_target']} | {cts} | {s.get('loss_per_lot', '—')} | {s.get('lots_demo', '—')} |")
+    plans = [(r, s) for r in rows for s in r["signals"] if s.get("action") == "开仓" and s.get("contract")]
+    if plans:
+        L.append("\n### 开仓计划：止损和首次平一半的点位\n")
+        L.append("权利金价格按信号日收盘价估算，实际以你的成交价为准（止损价 = 成交价 ×（1 − 止损比例），+50% 价 = 成交价 × 1.5）。\n")
+        for r, s in plans:
+            ct = s["contract"]
+            px, sp = ct["price"], s["opt_stop_pct"]
+            up = s["dir"] == "看涨"
+            L += [f"**{r['name']} {s['dir']} {s['strat']}**：买 {ct['name']}（{ct['ts_code']}）",
+                  f"- 止损（任一触发就全平）：权利金跌到约 {px*(1-sp):.4f}（−{int(sp*100)}%，盘中条件单）；"
+                  f"或标的收盘{'跌破' if up else '站上'} {s['u_stop']}（第二天开盘平）。",
+                  f"- 首次平一半（两个条件谁先到用谁，只做一次）：① 权利金涨到约 {px*1.5:.4f}（+50%，盘中条件单）；"
+                  f"② 标的收盘{'到达' if up else '跌到'} {s['u_target']}（2:1 目标，第二天开盘平）。平完一半后，剩下一半的止损提到成交价（保本），"
+                  f"之后{'标的收盘跌破 5 日线' if up else '一半站上 5 日线、一半站上 20 日线'}再平。",
+                  "- 为什么在这里平一半：回测 226 笔里，108 笔先到 +50%，这些交易 88% 最终赚钱；没到平一半点位的 116 笔只有 4% 赚钱。"
+                  "先兑现一半锁住利润、剩余保本，这笔交易基本就不会亏了，剩下一半再去博趋势。"
+                  "2:1 目标是\"赚到两倍止损距离\"的位置，实际很少先于 +50% 到达（226 笔里只有 2 笔），主要作为标的走势的参考线。",
+                  ""]
     L.append("\n### 每个品种：为什么买 / 为什么不买\n")
     for r in rows:
         acts = [s for s in r["signals"] if s.get("action") == "开仓"]
