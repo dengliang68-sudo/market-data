@@ -59,6 +59,64 @@ def _pick(cands: list[dict], cp: str) -> dict | None:
     return min((x for x in c if x["maturity"] == mt), key=lambda x: abs(abs(x["delta"]) - 0.5))
 
 
+def _chk(items):
+    """items: [(条件是否满足, 文字)] → (全部满足?, 不满足的条件文字)"""
+    bad = [t for ok, t in items if not ok]
+    return (not bad), bad
+
+
+def explain(r, ivp, cfg) -> list[str]:
+    """逐条说明每个规则为什么触发/没触发（与 signals_v2 的判断一一对应）。"""
+    f = lambda x, n=3: f"{x:.{n}f}"  # noqa: E731
+    c, a = r.close, r.atr
+    vr = r.vol / r.vol20_prev if r.vol20_prev else float("nan")
+    vm = cfg.get("vol_mult", 1.3)
+    up = "是" if r.close > r.open else "否"
+    L = []
+    # ---- 做多 ----
+    if r.ext_up:
+        L.append(f"- 做多（L1–L4）：**被偏离过滤挡住**——前一天收盘离 20 日线超过 2.5 倍 ATR，或 20 日线高出 60 日线超过 10%，不追涨。")
+    else:
+        rules = [
+            ("L4 放量大阳线", [(r.pct >= 0.03, f"涨幅 {r.pct*100:.1f}%（需 ≥3%）"), (vr >= 1.5, f"量比 {vr:.2f}（需 ≥1.5）"),
+                              (c > r.ma20, f"收盘 {f(c)} 需在 20 日线 {f(r.ma20)} 上方"), (c > r.open, f"需收阳（今天收阳：{up}）")]),
+            ("L2 回踩60日线起涨", [(c > r.hi20, f"收盘 {f(c)} 需突破前 20 日最高收盘 {f(r.hi20)}"), (bool(r.fresh_up), "需是第一次突破（昨天已突破过）"),
+                                 (vr >= vm, f"量比 {vr:.2f}（需 ≥{vm}）"), (c > r.open, f"需收阳（今天收阳：{up}）"),
+                                 (bool(r.touch60), "近 20 天需回踩过 60 日线附近"), (bool(r.held60), "近 20 天收盘需没有有效跌破 60 日线"),
+                                 (bool(r.ma60_ok), "60 日线需没有明显向下"), (c > r.ma20, f"收盘需在 20 日线 {f(r.ma20)} 上方")]),
+            ("L1 趋势突破", [((r.state == "上升") or (c > r.ma60 and bool(r.ma60_ok)), f"需上升趋势，或收盘在 60 日线 {f(r.ma60)} 上方且 60 日线不向下（现在：{r.state}）"),
+                            (c > r.hi20, f"收盘 {f(c)} 需突破前 20 日最高收盘 {f(r.hi20)}"), (bool(r.fresh_up), "需是第一次突破"),
+                            (vr >= vm, f"量比 {vr:.2f}（需 ≥{vm}）")]),
+            ("L3 回调上车", [(r.state == "上升", f"需上升趋势（现在：{r.state}）"), (bool(r.touch_up), "需回踩到 20 日线附近"),
+                            (c > r.open and c > r.prev_close, "需收阳且收盘高于昨收")]),
+        ]
+        for name, items in rules:
+            ok, bad = _chk(items)
+            L.append(f"- {name}：" + ("✅ 条件满足" if ok else "未触发——" + "；".join(bad)))
+    ok, bad = _chk([(ivp is not None and ivp >= 95, f"IV 250 日分位 {ivp if ivp is not None else '无'}（需 ≥95）"),
+                    (c < r.ma20, f"收盘 {f(c)} 需在 20 日线 {f(r.ma20)} 下方")])
+    L.append(f"- R1 恐慌反转：" + ("✅ 条件满足（当天没有其他做多信号时才用）" if ok else "未触发——" + "；".join(bad)))
+    # ---- 做空 ----
+    if not r.ma60_dn:
+        L.append(f"- 做空（S1/S4）：**不做**——60 日线 {f(r.ma60)} 不低于 20 天前，不是空头环境。")
+    elif r.ext_dn:
+        L.append("- 做空（S1/S4）：**被偏离过滤挡住**——前一天收盘离 20 日线超过 2.5 倍 ATR 或 20 日线低于 60 日线超过 10%，不追空。")
+    else:
+        bear = c < r.open and c < r.prev_close
+        for name, items in [
+            ("S1 跌破20日线和平台", [(c < r.ma20, f"收盘 {f(c)} 需跌破 20 日线 {f(r.ma20)}"), (c < r.low10, f"需跌破前 10 日最低 {f(r.low10)}"),
+                                  (bool(r.above20_recent), "前 3 天内需还在 20 日线上方（新跌破）"),
+                                  (r.ma60 < c and (c - r.ma60) >= 2 * (r.ma20 - c), "到 60 日线需有 ≥2 倍止损距离的空间")]),
+            ("S4 反抽20日线受阻", [(r.state == "下降", f"需下降趋势（现在：{r.state}）"), (bool(r.touch20_dn), "近 3 天需反弹碰到 20 日线"),
+                                 (bear, "需收阴且收盘低于昨收"), (c < r.ma20, "收盘需在 20 日线下方")]),
+        ]:
+            ok, bad = _chk(items)
+            L.append(f"- {name}：" + ("✅ 条件满足" if ok else "未触发——" + "；".join(bad)))
+        if ivp is not None and ivp >= 70:
+            L.append(f"- 另外：IV 分位 {ivp:.0f} ≥ 70，即使出做空信号也不做（期权太贵）。")
+    return L
+
+
 def evaluate(panel: dict, days: list[str]) -> list[dict]:
     h = update_iv_hist(panel)
     out = []
@@ -94,7 +152,8 @@ def evaluate(panel: dict, days: list[str]) -> list[dict]:
         watch = []
         if ivp is not None and ivp >= 90 and r.close < r.ma20 and not any(x["strat"].startswith("R1") for x in res):
             watch.append(f"R1 接近：IV 分位 {ivp:.0f}，≥95 且收盘仍在 20 日线下方即触发")
-        out.append({"code": u["code"], "name": u["name"], "date": panel["date"], "close": round(float(r.close), 3),
+        why = explain(r, ivp, K.RECOMMENDED)
+        out.append({"why": why, "code": u["code"], "name": u["name"], "date": panel["date"], "close": round(float(r.close), 3),
                     "state": r.state, "iv_pctile_250d": ivp,
                     "ma5": round(float(r.ma5), 3), "ma20": round(float(r.ma20), 3), "ma60": round(float(r.ma60), 3),
                     "hi20_close": round(float(r.hi20), 3), "low10": round(float(r.low10), 3),
@@ -121,6 +180,17 @@ def to_markdown(rows: list[dict]) -> list[str]:
             cts = f"{ct['name']}（{ct['ts_code']}，{ct['price']}，Delta {ct['delta']}，剩 {ct['days_left']} 天）" if ct else "—"
             L.append(f"| {r['name']} | {r['close']} | {r['state']} | {r['iv_pctile_250d']} | {s['dir']} {s['strat']} | {s['action']} | "
                      f"{s['u_stop']} / {s['u_target']} | {cts} | {s.get('loss_per_lot', '—')} | {s.get('lots_demo', '—')} |")
+    L.append("\n### 每个品种：为什么买 / 为什么不买\n")
+    for r in rows:
+        acts = [s for s in r["signals"] if s.get("action") == "开仓"]
+        if acts:
+            head = f"**结论：开仓 {acts[0]['dir']} {acts[0]['strat']}**"
+        elif r["signals"]:
+            head = f"**结论：有信号但不做——{r['signals'][0]['action']}**"
+        else:
+            head = "**结论：今天没有信号，不开仓**"
+        L.append(f"**{r['name']}**（收盘 {r['close']}，趋势 {r['state']}，IV 250日分位 {r['iv_pctile_250d']}）　{head}\n")
+        L += r["why"] + [""]
     L += ["\n### 关键价位与持仓跟踪\n",
           "所有按收盘价判断的出场（多单跟踪阶段收盘跌破 5 日线、空单站上 5 日/20 日线、标的收盘越过止损位、第 5 天时间止损、标的收盘到 2:1 目标平一半）都在第二天开盘执行。"
           "权利金止损和权利金 +50% 平一半是盘中价格，建议在券商设条件单。",
