@@ -112,9 +112,9 @@ def main():
     data, ivh = load()
     ivh.to_csv(ROOT / "data" / "opt_atm_iv_hist.csv", index=False)
     rows, yr, A_rec = [], {}, None
-    for label, cfg in [("推荐规则（含R1，次日开盘进场）", K.RECOMMENDED),
-                       ("推荐规则（含R1，信号当天收盘进场）", {**K.RECOMMENDED, "entry": "close"}),
-                       ("不含R1（次日开盘进场）", {k: v for k, v in K.RECOMMENDED.items() if k not in ("r1", "reverse")})]:
+    for label, cfg in [("推荐规则（含R1，次日开盘进出）", K.RECOMMENDED),
+                       ("推荐规则（含R1，当天收盘进出，实际做不到）", {**K.RECOMMENDED, "entry": "close", "exit": "close"}),
+                       ("不含R1（次日开盘进出）", {k: v for k, v in K.RECOMMENDED.items() if k not in ("r1", "reverse")})]:
         m, y, A = sim(trades(data, cfg), a.risk)
         rows.append({"方案": label, **m})
         yr[label] = y

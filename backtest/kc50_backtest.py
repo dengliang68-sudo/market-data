@@ -121,7 +121,8 @@ RECOMMENDED = dict(pullback=True, iv_skip=True, iv_long=False, iv_short=True, vo
                    s3=False, s4=True, bear_only=True, trail="ma5", trail_short="mix", short_stop_pct=0.6,
                    tstop_short=5, l4=True, l1_relax=True, tiers_off=True,
                    r1={"iv": 95, "k": 1.5}, reverse=("R1",),
-                   entry="next_open")   # 收盘后出信号，次日开盘进场（与实际操作一致；2026-11-08 起）
+                   entry="next_open",   # 收盘后出信号，次日开盘进场（与实际操作一致；2026-11-08 起）
+                   exit="next_open")    # 按收盘价判断的出场（跌破5日线、时间止损、到目标平一半）也在次日开盘执行
 
 
 # ---------------- 模拟 ----------------
@@ -195,6 +196,13 @@ def run_v2(cfg, days, u, book, meta_u, ivp):
                           "stop": round(float(s["stop"]), 3), "target": round(float(s["target"]), 3),
                           "iv_pct": ivp.get(d), "outcome": outcome})
 
+    def xclose(p, n, cl, d, why):
+        """按收盘价判断的出场：exit="next_open" 时推迟到次日开盘成交（实际只能收盘后看到信号）。"""
+        if cfg.get("exit") == "next_open":
+            p.defer = getattr(p, "defer", []) + [(n, why)]
+        else:
+            close(p, p.lots_open if n is None else n, cl, d, why)
+
     queued = None
     for i, d in enumerate(days):
         if d not in u.index:
@@ -239,7 +247,11 @@ def run_v2(cfg, days, u, book, meta_u, ivp):
             p = pos
             o, hi, lo, cl = px(p.leg, d, "open"), px(p.leg, d, "high"), px(p.leg, d, "low"), px(p.leg, d)
             if None not in (o, hi, lo, cl):
-                if p.pending:
+                for n_, why_ in getattr(p, "defer", []):
+                    if p.lots_open:
+                        close(p, p.lots_open if n_ is None else min(n_, p.lots_open), o, d, why_ + "（次日开盘）")
+                p.defer = []
+                if p.pending and p.lots_open:
                     close(p, p.lots_open, o, d, p.pending)
                 if p.lots_open:
                     sp = p.entry if p.be else p.entry * (1 - p.stop_pct)
@@ -253,7 +265,10 @@ def run_v2(cfg, days, u, book, meta_u, ivp):
                         why = "+50%平一半" if hit50 else "到达2:1目标平一半"
                         price = max(o, p.entry * 1.5) if hit50 else cl
                         if p.lots_open >= 2:
-                            close(p, p.lots_open // 2, price, d, why)
+                            if hit50:
+                                close(p, p.lots_open // 2, price, d, why)
+                            else:
+                                xclose(p, p.lots_open // 2, cl, d, why)
                         else:
                             p.exits.append((d, why.replace("平一半", "（只有1张，止损提到保本）"), 0, round(price, 4)))
                         p.be = True
@@ -289,7 +304,7 @@ def run_v2(cfg, days, u, book, meta_u, ivp):
                             out, why = True, ("标的跌破10日线" if p.dir > 0 else "标的站上10日线")
                         elif b5 and not getattr(p, "mix_half", False) and p.lots_open >= 2:
                             p.mix_half = True
-                            close(p, p.lots_open // 2, cl, d, "标的跌破5日线（平剩余的一半）" if p.dir > 0 else "标的站上5日线（平剩余的一半）")
+                            xclose(p, p.lots_open // 2, cl, d, "标的跌破5日线（平剩余的一半）" if p.dir > 0 else "标的站上5日线（平剩余的一半）")
                     elif mode == "mix":
                         # 剩余仓位一半跌破5日线出，另一半跌破20日线出
                         b5 = (r.close < r.ma5) if p.dir > 0 else (r.close > r.ma5)
@@ -298,7 +313,7 @@ def run_v2(cfg, days, u, book, meta_u, ivp):
                             out, why = True, ("标的跌破20日线" if p.dir > 0 else "标的站上20日线")
                         elif b5 and not getattr(p, "mix_half", False) and p.lots_open >= 2:
                             p.mix_half = True
-                            close(p, p.lots_open // 2, cl, d, "标的跌破5日线（平剩余的一半）" if p.dir > 0 else "标的站上5日线（平剩余的一半）")
+                            xclose(p, p.lots_open // 2, cl, d, "标的跌破5日线（平剩余的一半）" if p.dir > 0 else "标的站上5日线（平剩余的一半）")
                     elif mode == "ma20":
                         out = (r.close < r.ma20) if p.dir > 0 else (r.close > r.ma20)
                         why = "标的跌破20日线" if p.dir > 0 else "标的站上20日线"
@@ -306,8 +321,8 @@ def run_v2(cfg, days, u, book, meta_u, ivp):
                         ma10 = r.ma10
                         out = (r.close < ma10) if p.dir > 0 else (r.close > ma10)
                         why = "标的跌破10日线" if p.dir > 0 else "标的站上10日线"
-                    if out:
-                        close(p, p.lots_open, cl, d, why)
+                    if out and not getattr(p, "defer", []):
+                        xclose(p, None, cl, d, why)
                 if p.lots_open:
                     broke = (r.close < p.u_stop) if p.dir > 0 else (r.close > p.u_stop)
                     prog = (r.close - p.u_entry) * p.dir / max(abs(p.u_target - p.u_entry), 1e-9)
@@ -328,7 +343,8 @@ def run_v2(cfg, days, u, book, meta_u, ivp):
                                 p.entry, p.peak, p.be = newpx, ct["long_px"], False
                                 realized -= realized_adj
                     elif not p.partial and i - p.open_i == (cfg.get("tstop_short", 5) if p.dir < 0 else 5) and prog < 0.5:
-                        close(p, p.lots_open, cl, d, "时间止损")
+                        if not getattr(p, "defer", []):
+                            xclose(p, None, cl, d, "时间止损")
                     elif broke and not p.pending:
                         p.pending = "逻辑止损（次日开盘）"
                     if p.lots_open and gap_next > 5 and not p.holiday:
