@@ -129,3 +129,28 @@ def to_markdown(rows: list[dict]) -> list[str]:
                  f"{'是' if r['short_allowed'] else '否'} | {'是' if r['ext_up'] else '否'} / {'是' if r['ext_dn'] else '否'} | "
                  f"{'；'.join(r['watch']) or '—'} |")
     return L
+
+
+SIGNAL_LOG = DATA.parent / "reports" / "opt_signal_log.csv"
+
+
+def append_signal_log(rows: list[dict]) -> None:
+    """把每天的规则信号追加到 reports/opt_signal_log.csv（同一天重跑会覆盖当天的记录），供试运行复盘对比实际成交。"""
+    recs = []
+    for r in rows:
+        for s in r["signals"]:
+            ct = s.get("contract") or {}
+            recs.append({"signal_date": r["date"], "etf": r["name"], "code": r["code"], "dir": s["dir"],
+                         "strat": s["strat"], "action": s["action"], "u_close": r["close"],
+                         "u_stop": s["u_stop"], "u_target": s["u_target"], "iv_pctile_250d": r["iv_pctile_250d"],
+                         "contract": ct.get("ts_code"), "contract_name": ct.get("name"), "opt_close": ct.get("price"),
+                         "opt_stop_pct": s.get("opt_stop_pct"), "loss_per_lot": s.get("loss_per_lot"),
+                         "lots_demo_10w": s.get("lots_demo")})
+    old = pd.read_csv(SIGNAL_LOG, dtype={"signal_date": str}) if SIGNAL_LOG.exists() else pd.DataFrame()
+    day = rows[0]["date"] if rows else None
+    if len(old) and day:
+        old = old[old.signal_date != day]
+    new = pd.concat([old, pd.DataFrame(recs)], ignore_index=True)
+    if len(new):
+        new.to_csv(SIGNAL_LOG, index=False, encoding="utf-8-sig")
+

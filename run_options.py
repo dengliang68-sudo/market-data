@@ -36,6 +36,7 @@ def main():
 
     rules = opt_rules.evaluate(p, days)
     p["rule_signals"] = rules
+    opt_rules.append_signal_log(rules)
     L = [f"# ETF 期权数据摘要（{d} 收盘）\n",
          f"生成时间 {datetime.now().strftime('%Y-%m-%d %H:%M')}；数据来自 Tushare，IV 和 Delta 按 Black-Scholes 用收盘价计算"
          f"（无风险利率 Shibor 3M = {p['rate']}%），未经人工核对。\n",
