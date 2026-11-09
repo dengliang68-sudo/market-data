@@ -1,7 +1,7 @@
 name: daily-data
 on:
   schedule:
-    - cron: "40 22 * * 1-5"   # 北京时间 周二至周六 06:40（早报）
+    - cron: "40 22 * * 0-4"   # 北京时间 周一至周五 06:40（早报；周一早报覆盖周五美股收盘和周末消息）
     - cron: "30 8 * * 1-5"    # 北京时间 周一至周五 16:30（晚报）
     - cron: "30 12 * * 1-5"   # 北京时间 周一至周五 20:30（期权数据，供次日 8:17 期权盘前简报）
   workflow_dispatch:
@@ -29,7 +29,7 @@ jobs:
       - name: 选择 am / pm
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then S="${{ inputs.session }}"
-          elif [ "${{ github.event.schedule }}" = "40 22 * * 1-5" ]; then S=am
+          elif [ "${{ github.event.schedule }}" = "40 22 * * 0-4" ]; then S=am
           elif [ "${{ github.event.schedule }}" = "30 12 * * 1-5" ]; then S=opt; else S=pm; fi
           echo "S=$S" >> $GITHUB_ENV
       - run: |
