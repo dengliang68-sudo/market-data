@@ -4,12 +4,19 @@ on:
     - cron: "37 22 * * 0-4"   # 北京时间 周一至周五 06:37（早报；周一早报覆盖周五美股收盘和周末消息）
     - cron: "23 8 * * 1-5"    # 北京时间 周一至周五 16:23（晚报）
     - cron: "23 12 * * 1-5"   # 北京时间 周一至周五 20:23（期权数据，供次日 8:17 期权盘前简报）
+    - cron: "23 13 * * 1-5"   # 北京时间 21:23 期权数据补跑（该交易日报告已有就跳过）
+    - cron: "23 14 * * 1-5"   # 北京时间 22:23 期权数据补跑
+    - cron: "53 22 * * 1-5"   # 北京时间 次日 06:53 期权数据最后一次补跑（赶在 8:17 简报前）
   workflow_dispatch:
     inputs:
       session:
         description: "am、pm 或 opt"
         required: true
         default: "pm"
+      date:
+        description: "只对 opt 有效：指定交易日 YYYYMMDD（留空 = 最近交易日）"
+        required: false
+        default: ""
 permissions:
   contents: write
 concurrency: daily-data
@@ -30,10 +37,17 @@ jobs:
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then S="${{ inputs.session }}"
           elif [ "${{ github.event.schedule }}" = "37 22 * * 0-4" ]; then S=am
-          elif [ "${{ github.event.schedule }}" = "23 12 * * 1-5" ]; then S=opt; else S=pm; fi
+          elif [ "${{ github.event.schedule }}" = "23 8 * * 1-5" ]; then S=pm
+          else S=opt; fi   # 20:23 和三次补跑都是期权数据
           echo "S=$S" >> $GITHUB_ENV
-      - run: |
-          if [ "$S" = "opt" ]; then python run_options.py; else python run_review.py --session $S; fi
+      - env:
+          OPT_DATE: ${{ inputs.date }}
+        run: |
+          if [ "$S" = "opt" ]; then
+            if [ "${{ github.event_name }}" = "schedule" ]; then python run_options.py --skip-if-exists
+            elif [ -n "$OPT_DATE" ]; then python run_options.py --date "$OPT_DATE"
+            else python run_options.py; fi
+          else python run_review.py --session $S; fi
       - name: 提交回仓库
         run: |
           git config user.name "github-actions"

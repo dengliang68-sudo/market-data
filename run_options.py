@@ -3,6 +3,10 @@
 用法：
     TS_TOKEN=xxx python run_options.py                # 最近一个 A股交易日收盘后的数据
     TS_TOKEN=xxx python run_options.py --date 20261106
+    TS_TOKEN=xxx python run_options.py --skip-if-exists   # 该交易日的报告已经有了就不重跑（定时补跑用）
+
+日期保护：不指定 --date 时，如果最近一个交易日的期权/ETF 日线还没出来（比如开盘前运行），自动退回上一个交易日。
+数据检查：任何一个品种的平值 IV 取不到，程序报错退出、不写报告，避免生成一份看起来正常但缺 IV 的报告。
 
 输出：
     reports/YYYYMMDD_opt.md    数据摘要（YYYYMMDD 是数据所属的交易日；第二天早上的简报读它）
@@ -29,10 +33,24 @@ REPORTS.mkdir(exist_ok=True)
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--date", help="A股交易日 YYYYMMDD（默认最近交易日）")
+    ap.add_argument("--skip-if-exists", action="store_true", help="该交易日的报告已存在就直接退出（定时补跑用）")
     a = ap.parse_args()
-    days = trade_days(130, end=a.date)
+    days = trade_days(130, end=a.date or None)
+    if not opt.day_ready(days[-1]):
+        if a.date:
+            sys.exit(f"错误：{days[-1]} 的期权或 ETF 日线还没有数据，不能生成报告。")
+        print(f"提示：{days[-1]} 的收盘数据还没出来（可能是开盘前运行），退回上一个交易日 {days[-2]}。")
+        days = trade_days(130, end=days[-2])
+        if not opt.day_ready(days[-1]):
+            sys.exit(f"错误：{days[-1]} 的期权或 ETF 日线也没有数据，不能生成报告。")
+    d = days[-1]
+    if a.skip_if_exists and (REPORTS / f"{d}_opt.md").exists():
+        print(f"{d} 的期权报告已存在，跳过。")
+        return
     p = opt.option_panel(days)
-    d = p["date"]
+    bad = opt.check_panel(p)
+    if bad:
+        sys.exit("错误：关键数据缺失，不生成报告：\n- " + "\n- ".join(bad))
 
     rules = opt_rules.evaluate(p, days)
     p["rule_signals"] = rules

@@ -95,6 +95,37 @@ def _opt_daily(days: list[str]) -> pd.DataFrame:
     return pd.concat([sse, szse], ignore_index=True)
 
 
+def day_ready(d: str) -> bool:
+    """d 这个交易日的收盘数据是否已经齐了：沪、深两个交易所的期权日线和 ETF 日线都要有。
+
+    用来防止程序在开盘前（比如定时任务被 GitHub 拖到第二天早上才跑）把还没有行情的当天当成「最近交易日」。
+    """
+    for ex in ["SSE", "SZSE"]:
+        if not len(call("opt_daily", trade_date=d, exchange=ex)):
+            return False
+    for code in UNDERLYINGS:
+        if not len(call("fund_daily", ts_code=code, start_date=d, end_date=d)):
+            return False
+    return True
+
+
+def check_panel(p: dict) -> list[str]:
+    """检查关键数据是否齐全，返回问题列表（空 = 正常）。IV 是决策因子，缺了不能出报告。"""
+    d, bad = p["date"], []
+    got = {u["code"] for u in p["underlyings"]}
+    for code, nm in UNDERLYINGS.items():
+        if code not in got:
+            bad.append(f"{nm}（{code[:6]}）：没有取到 ETF 行情")
+    for u in p["underlyings"]:
+        if u["atm_iv"].get(u["iv_ref_month"]) is None:
+            bad.append(f"{u['name']}：{d} 的平值 IV 没有算出来（参考月份 {u['iv_ref_month']}）")
+        if d not in u["iv_series_60d"]:
+            bad.append(f"{u['name']}：IV 历史序列里没有 {d}")
+        if u["pcr_vol"] is None:
+            bad.append(f"{u['name']}：{d} 没有期权成交数据")
+    return bad
+
+
 # ---------- 计算 ----------
 def trend_state(h: pd.DataFrame) -> dict:
     c, v = h["close"].astype(float), h["vol"].astype(float)
