@@ -14,7 +14,7 @@ on:
         required: true
         default: "pm"
       date:
-        description: "只对 opt 有效：指定交易日 YYYYMMDD（留空 = 最近交易日）"
+        description: "指定交易日 YYYYMMDD（pm、opt 有效；留空 = 最近交易日）"
         required: false
         default: ""
 permissions:
@@ -47,11 +47,13 @@ jobs:
             if [ "${{ github.event_name }}" = "schedule" ]; then python run_options.py --skip-if-exists
             elif [ -n "$OPT_DATE" ]; then python run_options.py --date "$OPT_DATE"
             else python run_options.py; fi
+          elif [ "${{ github.event_name }}" = "schedule" ]; then python run_review.py --session $S --skip-if-exists
+          elif [ -n "$OPT_DATE" ]; then python run_review.py --session $S --date "$OPT_DATE"
           else python run_review.py --session $S; fi
       - name: 提交回仓库
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@users.noreply.github.com"
           git add data reports
-          git diff --cached --quiet || git commit -m "${S}数据 $(date +%Y%m%d)"
+          git diff --cached --quiet || git commit -m "${S}数据（运行于 $(date +%Y%m%d-%H%M)）"
           git pull --rebase origin main && git push origin main

@@ -41,11 +41,22 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--session", choices=["am", "pm"], required=True)
     ap.add_argument("--date", help="指定 A股交易日 YYYYMMDD（默认最近交易日）")
+    ap.add_argument("--skip-if-exists", action="store_true", help="对应日期的报告已存在就直接退出（定时补跑用）")
     a = ap.parse_args()
 
     out, md = {}, []
     days = trade_days(SCAN_DAYS, end=a.date)
+    now = datetime.now()   # workflow 里 TZ=Asia/Shanghai
+    if not a.date and a.session == "pm" and days[-1] == now.strftime("%Y%m%d") and now.hour * 60 + now.minute < 15 * 60 + 30:
+        # GitHub 定时延迟到第二天凌晨/上午才跑：当天还没收盘，晚报数据应归到上一个交易日
+        print(f"提示：现在 {now:%H:%M}，{days[-1]} 还没收盘，晚报数据归到上一个交易日 {days[-2]}。")
+        days = trade_days(SCAN_DAYS, end=days[-2])
     d = days[-1]
+    if a.skip_if_exists:
+        stem0 = REPORTS / f"{d if a.session == 'pm' else now.strftime('%Y%m%d')}_{a.session}.md"
+        if stem0.exists():
+            print(f"{stem0.name} 已存在，跳过。")
+            return
     run_at = datetime.now().strftime("%Y-%m-%d %H:%M")
     md.append(f"# 复盘数据摘要（{a.session}）\n\n生成时间 {run_at}；A股最近交易日 {d}。所有数字来自 Tushare / FRED，未经人工核对。\n")
 
