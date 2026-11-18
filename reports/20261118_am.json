@@ -1,0 +1,50 @@
+{
+ "us_index_fund": {
+  "spx": {
+   "date": "2026-11-16",
+   "close": 7416.59,
+   "pct": -1.92,
+   "high_52w": 7818.93,
+   "drawdown_52w": -5.15,
+   "vs_ma50": -3.2,
+   "vs_ma200": 1.01,
+   "ret_12m": null
+  },
+  "ndx": {
+   "date": "2026-11-16",
+   "close": 27197.15,
+   "pct": -2.67,
+   "high_52w": 31224.69,
+   "drawdown_52w": -12.9,
+   "vs_ma50": -7.68,
+   "vs_ma200": -3.03,
+   "ret_12m": 8.8
+  },
+  "vix": 22.91,
+  "vix_date": "2026-11-16",
+  "us10y": 5.12,
+  "us10y_date": "2026-11-16",
+  "temperature": "中性",
+  "drawdown_tiers_reached": [
+   -5
+  ],
+  "overheat_partial": {
+   "12个月涨幅>30%": false,
+   "跌破200日线": false
+  }
+ },
+ "hk": [
+  {
+   "name": "恒生指数",
+   "date": "20261117",
+   "close": 23508.17,
+   "pct": -1.03
+  },
+  {
+   "name": "恒生科技",
+   "date": "20261117",
+   "close": 3758.17,
+   "pct": -1.14
+  }
+ ]
+}
