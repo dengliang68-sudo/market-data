@@ -20,7 +20,7 @@ from pathlib import Path
 import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from md import cn, us  # noqa: E402
+from md import active_etf_pcf, cn, us  # noqa: E402
 from md.client import trade_days  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent
@@ -37,11 +37,27 @@ def fmt_tbl(df: pd.DataFrame, cols: list[str], n: int) -> str:
     return head + "".join("| " + " | ".join("" if pd.isna(v) else str(v) for v in r) + " |\n" for r in d.values)
 
 
+def collect_active_etf_pcf(day: str, previous_day: str) -> tuple[dict, str]:
+    try:
+        report = active_etf_pcf.write_daily_pcf_report(day, previous_day, root=ROOT)
+        return {
+            "pcf_date": day,
+            "markdown": f"{day}_pcf.md",
+            "json": f"{day}_pcf.json",
+        }, active_etf_pcf.report_section(report)
+    except Exception as exc:  # Keep a PCF failure local to its chapter.
+        reason = type(exc).__name__
+        print(f"{day} 主动 ETF 清单汇总未完成（{reason}）。")
+        return {
+            "pcf_date": day, "status": "unavailable", "error": reason,
+        }, "## 主动 ETF 申赎清单跟踪\n\n本次未生成汇总。"
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--session", choices=["am", "pm"], required=True)
     ap.add_argument("--date", help="指定 A股交易日 YYYYMMDD（默认最近交易日）")
-    ap.add_argument("--skip-if-exists", action="store_true", help="对应日期的报告已存在就直接退出（定时补跑用）")
+    ap.add_argument("--skip-if-exists", action="store_true", help="已有市场报告时跳过重算，晚报仍检查主动 ETF 清单")
     a = ap.parse_args()
 
     out, md = {}, []
@@ -55,10 +71,12 @@ def main():
     if a.skip_if_exists:
         stem0 = REPORTS / f"{d if a.session == 'pm' else now.strftime('%Y%m%d')}_{a.session}.md"
         if stem0.exists():
+            if a.session == "pm":
+                collect_active_etf_pcf(d, days[-2])
             print(f"{stem0.name} 已存在，跳过。")
             return
     run_at = datetime.now().strftime("%Y-%m-%d %H:%M")
-    md.append(f"# 复盘数据摘要（{a.session}）\n\n生成时间 {run_at}；A股最近交易日 {d}。所有数字来自 Tushare / FRED，未经人工核对。\n")
+    md.append(f"# 复盘数据摘要（{a.session}）\n\n生成时间 {run_at}；A股最近交易日 {d}。行情数据主要来自 Tushare / FRED，未经人工核对。\n")
 
     # 美股指数基金面板（早晚都给）
     try:
@@ -86,6 +104,9 @@ def main():
             md.append(f"两融余额（亿）：{t['margin_yi']}\n港股通南向净买入（亿元，买入减卖出，可能晚一天）：{t['south_net_yi']}\n")
         except Exception as e:  # noqa: BLE001
             md.append(f"\n## A股大盘温度\n获取失败：{e}\n")
+
+        out["active_etf_pcf"], pcf_chapter = collect_active_etf_pcf(d, days[-2])
+        md.append("\n" + pcf_chapter.strip() + "\n")
 
     try:
         hk = cn.hk_snapshot(days)
