@@ -1,0 +1,118 @@
+name: opt-cloud-request-bridge
+on:
+  push:
+    branches: [main]
+    paths: [cloud_triggers/opt-request.json]
+permissions:
+  contents: read
+  actions: write
+concurrency:
+  group: opt-cloud-request-bridge
+  cancel-in-progress: false
+jobs:
+  dispatch:
+    if: github.event.deleted == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - run: python -m pip install exchange-calendars==4.13.3
+      - name: Validate public request and dispatch existing daily workflow once
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: python
+        run: |
+          import base64, datetime as dt, json, os, re, urllib.request, urllib.error
+          from zoneinfo import ZoneInfo
+          import exchange_calendars as xc
+          REPO = os.environ["GITHUB_REPOSITORY"]
+          SHA = os.environ["GITHUB_SHA"]
+          RUN_ID = int(os.environ["GITHUB_RUN_ID"])
+          TOKEN = os.environ["GH_TOKEN"]
+          BASE = "https://api.github.com/repos/" + REPO
+          def api(path, method="GET", payload=None, missing_ok=False):
+              data = None if payload is None else json.dumps(payload).encode()
+              req = urllib.request.Request(BASE + path, data=data, method=method,
+                  headers={"Authorization": "Bearer " + TOKEN, "Accept": "application/vnd.github+json",
+                           "X-GitHub-Api-Version": "2022-11-28", "User-Agent": "opt-cloud-request-bridge"})
+              try:
+                  with urllib.request.urlopen(req, timeout=30) as response:
+                      raw = response.read()
+                      return json.loads(raw) if raw else None
+              except urllib.error.HTTPError as e:
+                  if missing_ok and e.code == 404:
+                      return None
+                  raise RuntimeError("GitHub API failed: " + method + " " + path + " HTTP " + str(e.code)) from None
+          def content(path, ref="main", missing_ok=False):
+              item = api("/contents/" + path + "?ref=" + ref, missing_ok=missing_ok)
+              return None if item is None else base64.b64decode(item["content"]).decode("utf-8")
+          def unique_object(pairs):
+              obj = {}
+              for k,v in pairs:
+                  if k in obj: raise ValueError("duplicate JSON key")
+                  obj[k] = v
+              return obj
+          with open("cloud_triggers/opt-request.json", encoding="utf-8") as f:
+              raw = f.read(4097)
+          if len(raw) > 4096: raise ValueError("request too large")
+          request = json.loads(raw, object_pairs_hook=unique_object)
+          if not isinstance(request, dict) or set(request) != {"session", "date", "request_id"}:
+              raise ValueError("exactly session,date,request_id required")
+          if request["session"] != "opt": raise ValueError("session must be opt")
+          date = request["date"]
+          rid = request["request_id"]
+          if not isinstance(date,str) or not re.fullmatch(r"[0-9]{8}",date): raise ValueError("invalid date format")
+          day = dt.datetime.strptime(date,"%Y%m%d").date()
+          if not isinstance(rid,str) or not re.fullmatch(r"[A-Za-z0-9._-]{1,100}",rid): raise ValueError("invalid request_id")
+          now = dt.datetime.now(ZoneInfo("Asia/Shanghai"))
+          if day != now.date() or now.hour < 15: raise ValueError("request must be today's closed session")
+          calendar = xc.get_calendar("XSHG")
+          if not calendar.is_session(day.isoformat()): raise ValueError("not an XSHG trading day")
+          manual_once = date == "20261125" and rid == "migration-acceptance-20261125"
+          if (now.hour,now.minute) < (20,35) and not manual_once: raise ValueError("before normal retry window")
+          if os.environ.get("GITHUB_RUN_ATTEMPT") != "1": raise ValueError("no automatic redispatch on rerun")
+          # A request date can be submitted only once, even if a previous bridge attempt failed.
+          commits = api("/commits?path=cloud_triggers/opt-request.json&sha=main&per_page=100")
+          if len(commits) == 100: raise RuntimeError("request history requires manual audit")
+          for commit in commits:
+              if commit["sha"] == SHA: continue
+              earlier = content("cloud_triggers/opt-request.json",commit["sha"],True)
+              if earlier is not None and json.loads(earlier).get("date") == date:
+                  raise RuntimeError("request for date already exists; manual audit required")
+          md = content("reports/" + date + "_opt.md",missing_ok=True)
+          js = content("reports/" + date + "_opt.json",missing_ok=True)
+          expected = {"510050","510300","510500","588000","159915"}
+          if md is not None and js is not None:
+              panel = json.loads(js)
+              if panel.get("date") != date or date not in md: raise RuntimeError("internal date mismatch; not a missing-file retry")
+              for key in ("underlyings","rule_signals"):
+                  rows = panel.get(key,[])
+                  if len(rows)!=5 or {x.get("code","").split(".")[0] for x in rows} != expected:
+                      raise RuntimeError("incomplete five-product data; manual audit required")
+              print("ALREADY_PRESENT: valid MD/JSON; no dispatch")
+              raise SystemExit(0)
+          # Only authenticated successful reads with explicit 404 reach this point.
+          active = {"requested","queued","waiting","pending","in_progress"}
+          for page in range(1,11):
+              result = api("/actions/runs?branch=main&per_page=100&page=" + str(page))
+              runs = result["workflow_runs"]
+              if any(x["path"] == ".github/workflows/daily.yml" and x["status"] in active for x in runs):
+                  print("ACTIVE_DAILY_RUN: no dispatch; inspect again at 21:35")
+                  raise SystemExit(0)
+              # Fail closed for any same-day direct dispatch, regardless of unknown inputs.
+              if any(x["path"] == ".github/workflows/daily.yml" and x["event"] == "workflow_dispatch"
+                     and x["created_at"][:10] >= (now - dt.timedelta(hours=8)).date().isoformat() for x in runs):
+                  raise RuntimeError("same-day dispatch already recorded; no duplicate")
+              if len(runs)<100: break
+          else: raise RuntimeError("run history exceeds audited pagination")
+          api("/actions/workflows/daily.yml/dispatches","POST",
+              {"ref":"main","inputs":{"session":"opt","date":date}})
+          print("DISPATCH_ACCEPTED: date=" + date + "; request_id=" + rid)
+          print("Verify downstream run and internal MD/JSON dates before claiming success.")
+          
