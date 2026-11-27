@@ -27,7 +27,7 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 from backtest import opt_data  # noqa: E402
 from backtest import opt_backtest as v1  # noqa: E402
-from backtest.qx_profit import first_pullback
+from backtest.qx_profit import first_pullback, profit_floor
 
 CODE = "588000.SH"
 NAME = "科创50ETF"
@@ -211,6 +211,7 @@ def run_v2(cfg, days, u, book, meta_u, ivp):
             close(p, p.lots_open if n is None else n, cl, d, why)
 
     queued = None
+    close_only = cfg.get("close_only", False)
     for i, d in enumerate(days):
         if d not in u.index:
             continue
@@ -252,7 +253,8 @@ def run_v2(cfg, days, u, book, meta_u, ivp):
         # ---------- 持仓管理 ----------
         if pos:
             p = pos
-            o, hi, lo, cl = px(p.leg, d, "open"), px(p.leg, d, "high"), px(p.leg, d, "low"), px(p.leg, d)
+            o, cl = px(p.leg, d, "open"), px(p.leg, d)
+            hi, lo = (cl, cl) if close_only else (px(p.leg, d, "high"), px(p.leg, d, "low"))
             if None not in (o, hi, lo, cl):
                 for n_, why_ in getattr(p, "defer", []):
                     if p.lots_open:
@@ -260,11 +262,29 @@ def run_v2(cfg, days, u, book, meta_u, ivp):
                 p.defer = []
                 if p.pending and p.lots_open:
                     close(p, p.lots_open, o, d, p.pending)
+                roll_next = getattr(p, "roll_next", None)
+                if close_only and roll_next and p.lots_open:
+                    np_open = px(roll_next["long"], d, "open")
+                    if np_open:
+                        n = p.lots_open
+                        close(p, n, o, d, "到期前移仓（次日开盘平旧）")
+                        p.realized -= FEE * n
+                        realized -= FEE * n
+                        p.leg, p.maturity, p.lots_open = roll_next["long"], roll_next["maturity"], n
+                        p.entry, p.peak, p.be = np_open + slip(np_open), np_open, False
+                        p.profit_peak = 0.0
+                        p.rolls.append(f"{d} 次日开盘换{p.leg}")
+                        p.roll_next = None
+                        o, cl = px(p.leg, d, "open"), px(p.leg, d)
+                        hi, lo = cl, cl
                 if p.lots_open:
                     sp = p.entry if p.be else p.entry * (1 - p.stop_pct)
                     if lo <= sp:
-                        close(p, p.lots_open, min(o, sp), d, "保本止损" if p.be else "权利金止损")
-                if p.lots_open and not p.partial:
+                        if close_only:
+                            xclose(p, None, cl, d, "收盘确认保本止损" if p.be else "收盘确认权利金止损")
+                        else:
+                            close(p, p.lots_open, min(o, sp), d, "保本止损" if p.be else "权利金止损")
+                if p.lots_open and not p.partial and not (close_only and getattr(p, "defer", [])):
                     hit50 = hi >= p.entry * 1.5
                     profit_fill = None
                     profit_floor_price = None
@@ -273,6 +293,12 @@ def run_v2(cfg, days, u, book, meta_u, ivp):
                             p.entry, p.profit_peak, o, hi, lo, cl,
                             cfg.get("profit_bar_order", "low_first"))
                         hit50 = profit_fill is not None
+                    elif cfg.get("first_profit") == "step_close":
+                        p.profit_peak = max(p.profit_peak, cl)
+                        profit_floor_price = profit_floor(p.entry, p.profit_peak)
+                        hit50 = profit_floor_price is not None and cl < profit_floor_price - p.entry * 1e-12
+                        if hit50:
+                            profit_fill = cl
                     hit_t = (r.close >= p.u_target) if p.dir > 0 else (r.close <= p.u_target)
                     if hit50 or hit_t:
                         p.partial = True
@@ -283,7 +309,7 @@ def run_v2(cfg, days, u, book, meta_u, ivp):
                             floor_gain = (profit_floor_price / p.entry - 1) * 100
                             why = f"阶梯回落首次减半（保护线+{floor_gain:.0f}%）"
                         if p.lots_open >= 2:
-                            if hit50:
+                            if hit50 and not close_only:
                                 close(p, p.lots_open // 2, price, d, why)
                             else:
                                 xclose(p, p.lots_open // 2, cl, d, why)
@@ -291,7 +317,7 @@ def run_v2(cfg, days, u, book, meta_u, ivp):
                             p.exits.append((d, why.replace("平一半", "（只有1张，止损提到保本）"), 0, round(price, 4)))
                         p.be = True
                         p.peak = cl
-                if p.lots_open and p.partial:
+                if p.lots_open and p.partial and not (close_only and getattr(p, "defer", [])):
                     p.peak = max(p.peak, cl)
                     mode = cfg.get("trail_short", cfg["trail"]) if p.dir < 0 else cfg["trail"]
                     out = False
@@ -341,12 +367,21 @@ def run_v2(cfg, days, u, book, meta_u, ivp):
                         why = "标的跌破10日线" if p.dir > 0 else "标的站上10日线"
                     if out and not getattr(p, "defer", []):
                         xclose(p, None, cl, d, why)
-                if p.lots_open:
+                if p.lots_open and not (close_only and getattr(p, "defer", [])):
                     broke = (r.close < p.u_stop) if p.dir > 0 else (r.close > p.u_stop)
                     prog = (r.close - p.u_entry) * p.dir / max(abs(p.u_target - p.u_entry), 1e-9)
                     left = (dt(p.maturity) - dt(d)).days
                     if left < 7:
-                        if p.partial and cfg.get("roll", True):
+                        if close_only:
+                            if p.partial and cfg.get("roll", True):
+                                ct = v1.pick_contract(book, meta_u, d, "C" if p.dir > 0 else "P", r.close, False)
+                                if ct and ct["long"] != p.leg:
+                                    p.roll_next = ct
+                                else:
+                                    xclose(p, None, cl, d, "近到期无可移仓合约")
+                            else:
+                                xclose(p, None, cl, d, "近到期收盘确认退出")
+                        elif p.partial and cfg.get("roll", True):
                             # 移仓：平掉当前合约，换下一个月 Delta≈0.5 的合约，张数不变
                             n = p.lots_open
                             close(p, n, cl, d, "到期前移仓（平旧）")
@@ -365,9 +400,16 @@ def run_v2(cfg, days, u, book, meta_u, ivp):
                             xclose(p, None, cl, d, "时间止损")
                     elif broke and not p.pending:
                         p.pending = "逻辑止损（次日开盘）"
-                    if p.lots_open and gap_next > 5 and not p.holiday:
+                    holiday_cut = ((i + 2 < len(days) and (dt(days[i + 2]) - dt(days[i + 1])).days > 5)
+                                   if close_only else gap_next > 5)
+                    if p.lots_open and holiday_cut and not p.holiday and not (close_only and getattr(p, "defer", [])):
                         p.holiday = True
-                        close(p, p.lots_open - p.lots_open // 2 if p.lots_open >= 2 else p.lots_open, cl, d, "长假前减仓")
+                        n_cut = p.lots_open - p.lots_open // 2 if p.lots_open >= 2 else p.lots_open
+                        if close_only:
+                            p.roll_next = None
+                            xclose(p, n_cut, cl, d, "长假前计划减仓")
+                        else:
+                            close(p, n_cut, cl, d, "长假前减仓")
             if p.lots_open <= 0:
                 finish(p, d)
                 pos = None

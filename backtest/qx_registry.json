@@ -4,7 +4,7 @@
   "source_commit": "00f762d09582dd1bb6d6a8d8da8c59c9b5b2b8b0",
   "numbering_note": "QX系列为本次新建的完整策略版本编号。LEG为旧方案归档，不冒充旧仓库已有统一编号。L1/L2/L3/L4/S1/S2/S3/S4/R1仅是入场信号编号。",
   "active_baseline": "QX-001",
-  "candidate": "QX-002",
+  "candidate": "QX-003",
   "versions": [
     {
       "id": "QX-001",
@@ -38,6 +38,17 @@
       "parent": "QX-001",
       "name": "旧报告不含R1对照",
       "status": "historical_comparator"
+    },
+    {
+      "id": "QX-003",
+      "parent": "QX-002",
+      "name": "全部收盘确认、次日开盘执行的免盯盘版",
+      "status": "research_only",
+      "change": "权利金初始/保本止损改收盘确认；首次阶梯按最高收盘价跟踪；移仓和节前减仓均事先安排次日开盘执行",
+      "risk_profiles": [
+        "R02",
+        "R03"
+      ]
     }
   ],
   "legacy": [
