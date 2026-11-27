@@ -1,0 +1,110 @@
+{
+  "baseline_source_commit": "00f762d09582dd1bb6d6a8d8da8c59c9b5b2b8b0",
+  "baseline_reproduced": true,
+  "study_end": "20261106",
+  "rules": {
+    "QX-001": {
+      "pullback": true,
+      "iv_skip": true,
+      "iv_long": false,
+      "iv_short": true,
+      "vol_mult": 1.2,
+      "s2": "off",
+      "s3": false,
+      "s4": true,
+      "bear_only": true,
+      "trail": "ma5",
+      "trail_short": "mix",
+      "short_stop_pct": 0.6,
+      "tstop_short": 5,
+      "l4": true,
+      "l1_relax": true,
+      "tiers_off": true,
+      "r1": {
+        "iv": 95,
+        "k": 1.5
+      },
+      "reverse": [
+        "R1"
+      ],
+      "entry": "next_open",
+      "exit": "next_open",
+      "research_trace": true
+    },
+    "QX-002-LH": {
+      "pullback": true,
+      "iv_skip": true,
+      "iv_long": false,
+      "iv_short": true,
+      "vol_mult": 1.2,
+      "s2": "off",
+      "s3": false,
+      "s4": true,
+      "bear_only": true,
+      "trail": "ma5",
+      "trail_short": "mix",
+      "short_stop_pct": 0.6,
+      "tstop_short": 5,
+      "l4": true,
+      "l1_relax": true,
+      "tiers_off": true,
+      "r1": {
+        "iv": 95,
+        "k": 1.5
+      },
+      "reverse": [
+        "R1"
+      ],
+      "entry": "next_open",
+      "exit": "next_open",
+      "research_trace": true,
+      "first_profit": "step_pullback",
+      "profit_bar_order": "low_first"
+    },
+    "QX-002-HL": {
+      "pullback": true,
+      "iv_skip": true,
+      "iv_long": false,
+      "iv_short": true,
+      "vol_mult": 1.2,
+      "s2": "off",
+      "s3": false,
+      "s4": true,
+      "bear_only": true,
+      "trail": "ma5",
+      "trail_short": "mix",
+      "short_stop_pct": 0.6,
+      "tstop_short": 5,
+      "l4": true,
+      "l1_relax": true,
+      "tiers_off": true,
+      "r1": {
+        "iv": 95,
+        "k": 1.5
+      },
+      "reverse": [
+        "R1"
+      ],
+      "entry": "next_open",
+      "exit": "next_open",
+      "research_trace": true,
+      "first_profit": "step_pullback",
+      "profit_bar_order": "high_first"
+    }
+  },
+  "python": "3.11.18 (main, Oct 26 2026, 02:48:29) [GCC 15.2.0]",
+  "pandas": "2.2.3",
+  "numpy": "2.2.6",
+  "inputs": {
+    "data/bt/opt_basic.parquet": "f00419e8ef9a01d3a743410080de81e927991e45d3814616d490873c4d39e606",
+    "data/bt/opt_daily_2018.parquet": "5b638b7d42b6895ae31413bc4c1ea35818a28c8d49e5c9cb64786703f8de91ef",
+    "data/bt/opt_daily_2019.parquet": "ce164ebdd9ee4bfcd02fdb1e74e58a3cf63aa9ae462f9261fae552484b7d0802",
+    "data/bt/opt_daily_2020.parquet": "31717f52e6333e90c89e8d199b04ec57ae18d0f28d382873e047f587894dcd25",
+    "data/bt/opt_daily_2021.parquet": "0abe5e870b891d12f0757c557d0398d2627655c68c17adf747e6df86f72fcb24",
+    "data/bt/opt_daily_2022.parquet": "68872379968402e9c343ad1968f678260a5d1c5040f0791a2c754ef01a6429a6",
+    "data/bt/opt_daily_2023.parquet": "2c2b48fcb1cedfd482c4f2f09d15996618e09d08424bc5dd635474360c114e9b",
+    "data/bt/opt_daily_2024.parquet": "3c88227c388d3ab849c645578a909d4be0ba8325412b651ff1103361b0b5eddc",
+    "data/bt/opt_daily_2025.parquet": "581f5e2e2dde922ce6bec902309929ff7c97ba70db75b42bed3fd60fe737db40",
+    "data/bt/opt_daily_2026.parquet": "e535e8c29609932c4bc42524748b7ed72e9581608b1d9738c14880280df2d3b3"
+  }
+}
