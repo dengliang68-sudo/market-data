@@ -27,6 +27,7 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 from backtest import opt_data  # noqa: E402
 from backtest import opt_backtest as v1  # noqa: E402
+from backtest.qx_profit import first_pullback
 
 CODE = "588000.SH"
 NAME = "科创50ETF"
@@ -152,6 +153,8 @@ class P:
     realized: float = 0.0
     exits: list = field(default_factory=list)
     rolls: list = field(default_factory=list)
+    profit_peak: float = 0.0
+    trace: list = field(default_factory=list)
 
 
 def run_v2(cfg, days, u, book, meta_u, ivp):
@@ -180,6 +183,8 @@ def run_v2(cfg, days, u, book, meta_u, ivp):
         p.exits.append((d, why, n, round(price, 4)))
 
     def finish(p: P, d):
+        if cfg.get("research_trace"):
+            p.trace.append({"date": d, "pnl": round(p.realized, 6), "market_value": 0.0, "cost": 0.0})
         trades.append({"code": NAME, "dir": "看涨" if p.dir > 0 else "看跌", "level": "A", "strat": p.strat,
                        "open": days[p.open_i], "close": d, "lots": p.lots, "entry": round(p.entry, 4),
                        "risk": round(p.risk), "pnl": round(p.realized, 1),
@@ -189,6 +194,8 @@ def run_v2(cfg, days, u, book, meta_u, ivp):
                        "legs": f"买{book.meta.at[p.leg, 'name'] if 'name' in book.meta.columns and p.leg in book.meta.index else p.leg}"
                                + ("；移仓：" + "，".join(p.rolls) if p.rolls else ""),
                        "entry_delta": round(p.delta, 2), "entry_days_left": p.dl, "iv_pct": p.ivp})
+        if cfg.get("research_trace"):
+            trades[-1]["trace"] = p.trace
 
     def decide(d, s, outcome):
         decisions.append({"date": d, "code": NAME, "dir": "看涨" if s["dir"] > 0 else "看跌", "level": "A",
@@ -259,11 +266,22 @@ def run_v2(cfg, days, u, book, meta_u, ivp):
                         close(p, p.lots_open, min(o, sp), d, "保本止损" if p.be else "权利金止损")
                 if p.lots_open and not p.partial:
                     hit50 = hi >= p.entry * 1.5
+                    profit_fill = None
+                    profit_floor_price = None
+                    if cfg.get("first_profit") == "step_pullback":
+                        p.profit_peak, profit_fill, profit_floor_price = first_pullback(
+                            p.entry, p.profit_peak, o, hi, lo, cl,
+                            cfg.get("profit_bar_order", "low_first"))
+                        hit50 = profit_fill is not None
                     hit_t = (r.close >= p.u_target) if p.dir > 0 else (r.close <= p.u_target)
                     if hit50 or hit_t:
                         p.partial = True
                         why = "+50%平一半" if hit50 else "到达2:1目标平一半"
                         price = max(o, p.entry * 1.5) if hit50 else cl
+                        if hit50 and profit_fill is not None:
+                            price = profit_fill
+                            floor_gain = (profit_floor_price / p.entry - 1) * 100
+                            why = f"阶梯回落首次减半（保护线+{floor_gain:.0f}%）"
                         if p.lots_open >= 2:
                             if hit50:
                                 close(p, p.lots_open // 2, price, d, why)
@@ -360,6 +378,10 @@ def run_v2(cfg, days, u, book, meta_u, ivp):
             cl = px(pos.leg, d)
             if cl:
                 unreal = (cl - pos.entry) * 10000 * pos.lots_open
+                if cfg.get("research_trace"):
+                    pos.trace.append({"date": d, "pnl": round(pos.realized + unreal, 6),
+                                      "market_value": round(cl * 10000 * pos.lots_open, 6),
+                                      "cost": round(pos.entry * 10000 * pos.lots_open, 6)})
         eq = CAP + realized + unreal
         eq_curve.append((d, round(eq, 1)))
         # 风控回撤按已平仓的盈亏算：持仓中浮盈的回吐不算亏损（跟踪止盈本来就要回吐一部分）
@@ -556,3 +578,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

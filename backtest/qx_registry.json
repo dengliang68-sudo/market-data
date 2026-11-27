@@ -1,0 +1,181 @@
+{
+  "created": "2026-11-27",
+  "source_repository": "dengliang68-sudo/market-data",
+  "source_commit": "00f762d09582dd1bb6d6a8d8da8c59c9b5b2b8b0",
+  "numbering_note": "QX系列为本次新建的完整策略版本编号。LEG为旧方案归档，不冒充旧仓库已有统一编号。L1/L2/L3/L4/S1/S2/S3/S4/R1仅是入场信号编号。",
+  "active_baseline": "QX-001",
+  "candidate": "QX-002",
+  "versions": [
+    {
+      "id": "QX-001",
+      "name": "上次最终推荐基准（含R1、次日开盘进出）",
+      "source": "backtest/kc50_backtest.py::RECOMMENDED + backtest/recommended_portfolio.py",
+      "status": "frozen_baseline"
+    },
+    {
+      "id": "QX-002",
+      "parent": "QX-001",
+      "name": "50%启动、10个百分点阶梯回落首次减半",
+      "status": "research_only",
+      "change": "只替换权利金+50%立即减半分支；2:1目标分支及其他规则不变",
+      "execution_scenarios": [
+        "LH",
+        "HL"
+      ],
+      "risk_profiles": [
+        "R03",
+        "R02"
+      ]
+    },
+    {
+      "id": "QX-001-CLOSE",
+      "parent": "QX-001",
+      "name": "旧报告当天收盘进出理想化对照",
+      "status": "historical_unexecutable_comparator"
+    },
+    {
+      "id": "QX-001-NOR1",
+      "parent": "QX-001",
+      "name": "旧报告不含R1对照",
+      "status": "historical_comparator"
+    }
+  ],
+  "legacy": [
+    {
+      "id": "LEG-V1",
+      "original": "V1",
+      "source": "backtest/opt_backtest.py",
+      "note": "原有V1至V9方案；原名保留"
+    },
+    {
+      "id": "LEG-V2",
+      "original": "V2",
+      "source": "backtest/opt_backtest.py",
+      "note": "原有V1至V9方案；原名保留"
+    },
+    {
+      "id": "LEG-V3",
+      "original": "V3",
+      "source": "backtest/opt_backtest.py",
+      "note": "原有V1至V9方案；原名保留"
+    },
+    {
+      "id": "LEG-V4",
+      "original": "V4",
+      "source": "backtest/opt_backtest.py",
+      "note": "原有V1至V9方案；原名保留"
+    },
+    {
+      "id": "LEG-V5",
+      "original": "V5",
+      "source": "backtest/opt_backtest.py",
+      "note": "原有V1至V9方案；原名保留"
+    },
+    {
+      "id": "LEG-V6",
+      "original": "V6",
+      "source": "backtest/opt_backtest.py",
+      "note": "原有V1至V9方案；原名保留"
+    },
+    {
+      "id": "LEG-V7",
+      "original": "V7",
+      "source": "backtest/opt_backtest.py",
+      "note": "原有V1至V9方案；原名保留"
+    },
+    {
+      "id": "LEG-V8",
+      "original": "V8",
+      "source": "backtest/opt_backtest.py",
+      "note": "原有V1至V9方案；原名保留"
+    },
+    {
+      "id": "LEG-V9",
+      "original": "V9",
+      "source": "backtest/opt_backtest.py",
+      "note": "原有V1至V9方案；原名保留"
+    },
+    {
+      "id": "LEG-KC-20261107-A",
+      "original": "A 旧规则（v1：只做科创50，IV高不做）",
+      "source": "reports/backtest/kc50_20230605_20261106.md"
+    },
+    {
+      "id": "LEG-KC-20261107-B",
+      "original": "B 新规则·剩余仓位期权从最高回落10%清仓",
+      "source": "reports/backtest/kc50_20230605_20261106.md"
+    },
+    {
+      "id": "LEG-KC-20261107-C",
+      "original": "C 新规则·剩余仓位期权从最高回落20%清仓",
+      "source": "reports/backtest/kc50_20230605_20261106.md"
+    },
+    {
+      "id": "LEG-KC-20261107-D",
+      "original": "D 新规则·剩余仓位标的跌破5日线清仓",
+      "source": "reports/backtest/kc50_20230605_20261106.md"
+    },
+    {
+      "id": "LEG-KC-20261107-E",
+      "original": "E 新规则·剩余仓位标的跌破10日线清仓",
+      "source": "reports/backtest/kc50_20230605_20261106.md"
+    },
+    {
+      "id": "LEG-KC-20261107-F",
+      "original": "F 同B，但不用IV过滤",
+      "source": "reports/backtest/kc50_20230605_20261106.md"
+    },
+    {
+      "id": "LEG-KC-20261107-G",
+      "original": "G 同B，但去掉回调上车（L3）",
+      "source": "reports/backtest/kc50_20230605_20261106.md"
+    },
+    {
+      "id": "LEG-KC-CURRENT-A",
+      "original": "A",
+      "name": "旧v1",
+      "source": "backtest/kc50_backtest.py::main"
+    },
+    {
+      "id": "LEG-KC-CURRENT-H",
+      "original": "H",
+      "name": "加强做空",
+      "source": "backtest/kc50_backtest.py::main"
+    },
+    {
+      "id": "LEG-KC-CURRENT-M",
+      "original": "M",
+      "name": "放量大阳线、放宽突破，多单20日线",
+      "source": "backtest/kc50_backtest.py::main"
+    },
+    {
+      "id": "LEG-KC-CURRENT-N",
+      "original": "N",
+      "name": "同M，多单5日线",
+      "source": "backtest/kc50_backtest.py::main"
+    },
+    {
+      "id": "LEG-KC-CURRENT-O",
+      "original": "O",
+      "name": "同M，多单5/20日线分批",
+      "source": "backtest/kc50_backtest.py::main"
+    },
+    {
+      "id": "LEG-KC-CURRENT-P",
+      "original": "P",
+      "name": "同M，关闭L4",
+      "source": "backtest/kc50_backtest.py::main"
+    },
+    {
+      "id": "LEG-KC-CURRENT-Q",
+      "original": "Q",
+      "name": "同M，突破要求上升趋势",
+      "source": "backtest/kc50_backtest.py::main"
+    },
+    {
+      "id": "LEG-PORTFOLIO-GRID",
+      "source": "backtest/portfolio_sim.py + portfolio_gen.py + portfolio_sketch.py",
+      "note": "旧参数网格与草稿；须由配置完整JSON及哈希区分，不能把不同风险比例当同一回测结果。"
+    }
+  ]
+}
