@@ -173,9 +173,2992 @@
       "source": "backtest/kc50_backtest.py::main"
     },
     {
-      "id": "LEG-PORTFOLIO-GRID",
-      "source": "backtest/portfolio_sim.py + portfolio_gen.py + portfolio_sketch.py",
-      "note": "旧参数网格与草稿；须由配置完整JSON及哈希区分，不能把不同风险比例当同一回测结果。"
+      "id": "LEG-GRID-001",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "mix",
+        "s4": true,
+        "risk": 0.02,
+        "compound": false,
+        "max_pos": 3,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-002",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "mix",
+        "s4": true,
+        "risk": 0.02,
+        "compound": false,
+        "max_pos": 3,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-003",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "mix",
+        "s4": true,
+        "risk": 0.02,
+        "compound": false,
+        "max_pos": 4,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-004",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "mix",
+        "s4": true,
+        "risk": 0.02,
+        "compound": false,
+        "max_pos": 4,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-005",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "mix",
+        "s4": true,
+        "risk": 0.02,
+        "compound": true,
+        "max_pos": 3,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-006",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "mix",
+        "s4": true,
+        "risk": 0.02,
+        "compound": true,
+        "max_pos": 3,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-007",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "mix",
+        "s4": true,
+        "risk": 0.02,
+        "compound": true,
+        "max_pos": 4,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-008",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "mix",
+        "s4": true,
+        "risk": 0.02,
+        "compound": true,
+        "max_pos": 4,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-009",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "mix",
+        "s4": true,
+        "risk": 0.025,
+        "compound": false,
+        "max_pos": 3,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-010",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "mix",
+        "s4": true,
+        "risk": 0.025,
+        "compound": false,
+        "max_pos": 3,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-011",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "mix",
+        "s4": true,
+        "risk": 0.025,
+        "compound": false,
+        "max_pos": 4,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-012",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "mix",
+        "s4": true,
+        "risk": 0.025,
+        "compound": false,
+        "max_pos": 4,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-013",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "mix",
+        "s4": true,
+        "risk": 0.025,
+        "compound": true,
+        "max_pos": 3,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-014",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "mix",
+        "s4": true,
+        "risk": 0.025,
+        "compound": true,
+        "max_pos": 3,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-015",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "mix",
+        "s4": true,
+        "risk": 0.025,
+        "compound": true,
+        "max_pos": 4,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-016",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "mix",
+        "s4": true,
+        "risk": 0.025,
+        "compound": true,
+        "max_pos": 4,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-017",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "mix",
+        "s4": true,
+        "risk": 0.03,
+        "compound": false,
+        "max_pos": 3,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-018",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "mix",
+        "s4": true,
+        "risk": 0.03,
+        "compound": false,
+        "max_pos": 3,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-019",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "mix",
+        "s4": true,
+        "risk": 0.03,
+        "compound": false,
+        "max_pos": 4,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-020",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "mix",
+        "s4": true,
+        "risk": 0.03,
+        "compound": false,
+        "max_pos": 4,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-021",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "mix",
+        "s4": true,
+        "risk": 0.03,
+        "compound": true,
+        "max_pos": 3,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-022",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "mix",
+        "s4": true,
+        "risk": 0.03,
+        "compound": true,
+        "max_pos": 3,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-023",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "mix",
+        "s4": true,
+        "risk": 0.03,
+        "compound": true,
+        "max_pos": 4,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-024",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "mix",
+        "s4": true,
+        "risk": 0.03,
+        "compound": true,
+        "max_pos": 4,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-025",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "mix",
+        "s4": false,
+        "risk": 0.02,
+        "compound": false,
+        "max_pos": 3,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-026",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "mix",
+        "s4": false,
+        "risk": 0.02,
+        "compound": false,
+        "max_pos": 3,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-027",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "mix",
+        "s4": false,
+        "risk": 0.02,
+        "compound": false,
+        "max_pos": 4,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-028",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "mix",
+        "s4": false,
+        "risk": 0.02,
+        "compound": false,
+        "max_pos": 4,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-029",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "mix",
+        "s4": false,
+        "risk": 0.02,
+        "compound": true,
+        "max_pos": 3,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-030",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "mix",
+        "s4": false,
+        "risk": 0.02,
+        "compound": true,
+        "max_pos": 3,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-031",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "mix",
+        "s4": false,
+        "risk": 0.02,
+        "compound": true,
+        "max_pos": 4,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-032",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "mix",
+        "s4": false,
+        "risk": 0.02,
+        "compound": true,
+        "max_pos": 4,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-033",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "mix",
+        "s4": false,
+        "risk": 0.025,
+        "compound": false,
+        "max_pos": 3,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-034",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "mix",
+        "s4": false,
+        "risk": 0.025,
+        "compound": false,
+        "max_pos": 3,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-035",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "mix",
+        "s4": false,
+        "risk": 0.025,
+        "compound": false,
+        "max_pos": 4,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-036",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "mix",
+        "s4": false,
+        "risk": 0.025,
+        "compound": false,
+        "max_pos": 4,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-037",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "mix",
+        "s4": false,
+        "risk": 0.025,
+        "compound": true,
+        "max_pos": 3,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-038",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "mix",
+        "s4": false,
+        "risk": 0.025,
+        "compound": true,
+        "max_pos": 3,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-039",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "mix",
+        "s4": false,
+        "risk": 0.025,
+        "compound": true,
+        "max_pos": 4,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-040",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "mix",
+        "s4": false,
+        "risk": 0.025,
+        "compound": true,
+        "max_pos": 4,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-041",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "mix",
+        "s4": false,
+        "risk": 0.03,
+        "compound": false,
+        "max_pos": 3,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-042",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "mix",
+        "s4": false,
+        "risk": 0.03,
+        "compound": false,
+        "max_pos": 3,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-043",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "mix",
+        "s4": false,
+        "risk": 0.03,
+        "compound": false,
+        "max_pos": 4,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-044",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "mix",
+        "s4": false,
+        "risk": 0.03,
+        "compound": false,
+        "max_pos": 4,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-045",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "mix",
+        "s4": false,
+        "risk": 0.03,
+        "compound": true,
+        "max_pos": 3,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-046",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "mix",
+        "s4": false,
+        "risk": 0.03,
+        "compound": true,
+        "max_pos": 3,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-047",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "mix",
+        "s4": false,
+        "risk": 0.03,
+        "compound": true,
+        "max_pos": 4,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-048",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "mix",
+        "s4": false,
+        "risk": 0.03,
+        "compound": true,
+        "max_pos": 4,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-049",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma20",
+        "s4": true,
+        "risk": 0.02,
+        "compound": false,
+        "max_pos": 3,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-050",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma20",
+        "s4": true,
+        "risk": 0.02,
+        "compound": false,
+        "max_pos": 3,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-051",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma20",
+        "s4": true,
+        "risk": 0.02,
+        "compound": false,
+        "max_pos": 4,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-052",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma20",
+        "s4": true,
+        "risk": 0.02,
+        "compound": false,
+        "max_pos": 4,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-053",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma20",
+        "s4": true,
+        "risk": 0.02,
+        "compound": true,
+        "max_pos": 3,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-054",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma20",
+        "s4": true,
+        "risk": 0.02,
+        "compound": true,
+        "max_pos": 3,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-055",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma20",
+        "s4": true,
+        "risk": 0.02,
+        "compound": true,
+        "max_pos": 4,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-056",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma20",
+        "s4": true,
+        "risk": 0.02,
+        "compound": true,
+        "max_pos": 4,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-057",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma20",
+        "s4": true,
+        "risk": 0.025,
+        "compound": false,
+        "max_pos": 3,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-058",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma20",
+        "s4": true,
+        "risk": 0.025,
+        "compound": false,
+        "max_pos": 3,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-059",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma20",
+        "s4": true,
+        "risk": 0.025,
+        "compound": false,
+        "max_pos": 4,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-060",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma20",
+        "s4": true,
+        "risk": 0.025,
+        "compound": false,
+        "max_pos": 4,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-061",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma20",
+        "s4": true,
+        "risk": 0.025,
+        "compound": true,
+        "max_pos": 3,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-062",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma20",
+        "s4": true,
+        "risk": 0.025,
+        "compound": true,
+        "max_pos": 3,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-063",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma20",
+        "s4": true,
+        "risk": 0.025,
+        "compound": true,
+        "max_pos": 4,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-064",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma20",
+        "s4": true,
+        "risk": 0.025,
+        "compound": true,
+        "max_pos": 4,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-065",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma20",
+        "s4": true,
+        "risk": 0.03,
+        "compound": false,
+        "max_pos": 3,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-066",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma20",
+        "s4": true,
+        "risk": 0.03,
+        "compound": false,
+        "max_pos": 3,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-067",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma20",
+        "s4": true,
+        "risk": 0.03,
+        "compound": false,
+        "max_pos": 4,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-068",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma20",
+        "s4": true,
+        "risk": 0.03,
+        "compound": false,
+        "max_pos": 4,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-069",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma20",
+        "s4": true,
+        "risk": 0.03,
+        "compound": true,
+        "max_pos": 3,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-070",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma20",
+        "s4": true,
+        "risk": 0.03,
+        "compound": true,
+        "max_pos": 3,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-071",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma20",
+        "s4": true,
+        "risk": 0.03,
+        "compound": true,
+        "max_pos": 4,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-072",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma20",
+        "s4": true,
+        "risk": 0.03,
+        "compound": true,
+        "max_pos": 4,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-073",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma20",
+        "s4": false,
+        "risk": 0.02,
+        "compound": false,
+        "max_pos": 3,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-074",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma20",
+        "s4": false,
+        "risk": 0.02,
+        "compound": false,
+        "max_pos": 3,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-075",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma20",
+        "s4": false,
+        "risk": 0.02,
+        "compound": false,
+        "max_pos": 4,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-076",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma20",
+        "s4": false,
+        "risk": 0.02,
+        "compound": false,
+        "max_pos": 4,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-077",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma20",
+        "s4": false,
+        "risk": 0.02,
+        "compound": true,
+        "max_pos": 3,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-078",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma20",
+        "s4": false,
+        "risk": 0.02,
+        "compound": true,
+        "max_pos": 3,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-079",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma20",
+        "s4": false,
+        "risk": 0.02,
+        "compound": true,
+        "max_pos": 4,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-080",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma20",
+        "s4": false,
+        "risk": 0.02,
+        "compound": true,
+        "max_pos": 4,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-081",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma20",
+        "s4": false,
+        "risk": 0.025,
+        "compound": false,
+        "max_pos": 3,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-082",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma20",
+        "s4": false,
+        "risk": 0.025,
+        "compound": false,
+        "max_pos": 3,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-083",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma20",
+        "s4": false,
+        "risk": 0.025,
+        "compound": false,
+        "max_pos": 4,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-084",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma20",
+        "s4": false,
+        "risk": 0.025,
+        "compound": false,
+        "max_pos": 4,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-085",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma20",
+        "s4": false,
+        "risk": 0.025,
+        "compound": true,
+        "max_pos": 3,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-086",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma20",
+        "s4": false,
+        "risk": 0.025,
+        "compound": true,
+        "max_pos": 3,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-087",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma20",
+        "s4": false,
+        "risk": 0.025,
+        "compound": true,
+        "max_pos": 4,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-088",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma20",
+        "s4": false,
+        "risk": 0.025,
+        "compound": true,
+        "max_pos": 4,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-089",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma20",
+        "s4": false,
+        "risk": 0.03,
+        "compound": false,
+        "max_pos": 3,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-090",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma20",
+        "s4": false,
+        "risk": 0.03,
+        "compound": false,
+        "max_pos": 3,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-091",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma20",
+        "s4": false,
+        "risk": 0.03,
+        "compound": false,
+        "max_pos": 4,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-092",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma20",
+        "s4": false,
+        "risk": 0.03,
+        "compound": false,
+        "max_pos": 4,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-093",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma20",
+        "s4": false,
+        "risk": 0.03,
+        "compound": true,
+        "max_pos": 3,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-094",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma20",
+        "s4": false,
+        "risk": 0.03,
+        "compound": true,
+        "max_pos": 3,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-095",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma20",
+        "s4": false,
+        "risk": 0.03,
+        "compound": true,
+        "max_pos": 4,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-096",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma20",
+        "s4": false,
+        "risk": 0.03,
+        "compound": true,
+        "max_pos": 4,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-097",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "adapt",
+        "s4": true,
+        "risk": 0.02,
+        "compound": false,
+        "max_pos": 3,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-098",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "adapt",
+        "s4": true,
+        "risk": 0.02,
+        "compound": false,
+        "max_pos": 3,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-099",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "adapt",
+        "s4": true,
+        "risk": 0.02,
+        "compound": false,
+        "max_pos": 4,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-100",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "adapt",
+        "s4": true,
+        "risk": 0.02,
+        "compound": false,
+        "max_pos": 4,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-101",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "adapt",
+        "s4": true,
+        "risk": 0.02,
+        "compound": true,
+        "max_pos": 3,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-102",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "adapt",
+        "s4": true,
+        "risk": 0.02,
+        "compound": true,
+        "max_pos": 3,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-103",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "adapt",
+        "s4": true,
+        "risk": 0.02,
+        "compound": true,
+        "max_pos": 4,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-104",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "adapt",
+        "s4": true,
+        "risk": 0.02,
+        "compound": true,
+        "max_pos": 4,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-105",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "adapt",
+        "s4": true,
+        "risk": 0.025,
+        "compound": false,
+        "max_pos": 3,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-106",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "adapt",
+        "s4": true,
+        "risk": 0.025,
+        "compound": false,
+        "max_pos": 3,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-107",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "adapt",
+        "s4": true,
+        "risk": 0.025,
+        "compound": false,
+        "max_pos": 4,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-108",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "adapt",
+        "s4": true,
+        "risk": 0.025,
+        "compound": false,
+        "max_pos": 4,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-109",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "adapt",
+        "s4": true,
+        "risk": 0.025,
+        "compound": true,
+        "max_pos": 3,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-110",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "adapt",
+        "s4": true,
+        "risk": 0.025,
+        "compound": true,
+        "max_pos": 3,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-111",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "adapt",
+        "s4": true,
+        "risk": 0.025,
+        "compound": true,
+        "max_pos": 4,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-112",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "adapt",
+        "s4": true,
+        "risk": 0.025,
+        "compound": true,
+        "max_pos": 4,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-113",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "adapt",
+        "s4": true,
+        "risk": 0.03,
+        "compound": false,
+        "max_pos": 3,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-114",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "adapt",
+        "s4": true,
+        "risk": 0.03,
+        "compound": false,
+        "max_pos": 3,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-115",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "adapt",
+        "s4": true,
+        "risk": 0.03,
+        "compound": false,
+        "max_pos": 4,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-116",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "adapt",
+        "s4": true,
+        "risk": 0.03,
+        "compound": false,
+        "max_pos": 4,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-117",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "adapt",
+        "s4": true,
+        "risk": 0.03,
+        "compound": true,
+        "max_pos": 3,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-118",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "adapt",
+        "s4": true,
+        "risk": 0.03,
+        "compound": true,
+        "max_pos": 3,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-119",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "adapt",
+        "s4": true,
+        "risk": 0.03,
+        "compound": true,
+        "max_pos": 4,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-120",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "adapt",
+        "s4": true,
+        "risk": 0.03,
+        "compound": true,
+        "max_pos": 4,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-121",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "adapt",
+        "s4": false,
+        "risk": 0.02,
+        "compound": false,
+        "max_pos": 3,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-122",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "adapt",
+        "s4": false,
+        "risk": 0.02,
+        "compound": false,
+        "max_pos": 3,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-123",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "adapt",
+        "s4": false,
+        "risk": 0.02,
+        "compound": false,
+        "max_pos": 4,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-124",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "adapt",
+        "s4": false,
+        "risk": 0.02,
+        "compound": false,
+        "max_pos": 4,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-125",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "adapt",
+        "s4": false,
+        "risk": 0.02,
+        "compound": true,
+        "max_pos": 3,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-126",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "adapt",
+        "s4": false,
+        "risk": 0.02,
+        "compound": true,
+        "max_pos": 3,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-127",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "adapt",
+        "s4": false,
+        "risk": 0.02,
+        "compound": true,
+        "max_pos": 4,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-128",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "adapt",
+        "s4": false,
+        "risk": 0.02,
+        "compound": true,
+        "max_pos": 4,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-129",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "adapt",
+        "s4": false,
+        "risk": 0.025,
+        "compound": false,
+        "max_pos": 3,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-130",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "adapt",
+        "s4": false,
+        "risk": 0.025,
+        "compound": false,
+        "max_pos": 3,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-131",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "adapt",
+        "s4": false,
+        "risk": 0.025,
+        "compound": false,
+        "max_pos": 4,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-132",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "adapt",
+        "s4": false,
+        "risk": 0.025,
+        "compound": false,
+        "max_pos": 4,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-133",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "adapt",
+        "s4": false,
+        "risk": 0.025,
+        "compound": true,
+        "max_pos": 3,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-134",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "adapt",
+        "s4": false,
+        "risk": 0.025,
+        "compound": true,
+        "max_pos": 3,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-135",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "adapt",
+        "s4": false,
+        "risk": 0.025,
+        "compound": true,
+        "max_pos": 4,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-136",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "adapt",
+        "s4": false,
+        "risk": 0.025,
+        "compound": true,
+        "max_pos": 4,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-137",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "adapt",
+        "s4": false,
+        "risk": 0.03,
+        "compound": false,
+        "max_pos": 3,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-138",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "adapt",
+        "s4": false,
+        "risk": 0.03,
+        "compound": false,
+        "max_pos": 3,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-139",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "adapt",
+        "s4": false,
+        "risk": 0.03,
+        "compound": false,
+        "max_pos": 4,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-140",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "adapt",
+        "s4": false,
+        "risk": 0.03,
+        "compound": false,
+        "max_pos": 4,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-141",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "adapt",
+        "s4": false,
+        "risk": 0.03,
+        "compound": true,
+        "max_pos": 3,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-142",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "adapt",
+        "s4": false,
+        "risk": 0.03,
+        "compound": true,
+        "max_pos": 3,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-143",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "adapt",
+        "s4": false,
+        "risk": 0.03,
+        "compound": true,
+        "max_pos": 4,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-144",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "adapt",
+        "s4": false,
+        "risk": 0.03,
+        "compound": true,
+        "max_pos": 4,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-145",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma5",
+        "s4": true,
+        "risk": 0.02,
+        "compound": false,
+        "max_pos": 3,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-146",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma5",
+        "s4": true,
+        "risk": 0.02,
+        "compound": false,
+        "max_pos": 3,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-147",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma5",
+        "s4": true,
+        "risk": 0.02,
+        "compound": false,
+        "max_pos": 4,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-148",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma5",
+        "s4": true,
+        "risk": 0.02,
+        "compound": false,
+        "max_pos": 4,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-149",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma5",
+        "s4": true,
+        "risk": 0.02,
+        "compound": true,
+        "max_pos": 3,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-150",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma5",
+        "s4": true,
+        "risk": 0.02,
+        "compound": true,
+        "max_pos": 3,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-151",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma5",
+        "s4": true,
+        "risk": 0.02,
+        "compound": true,
+        "max_pos": 4,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-152",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma5",
+        "s4": true,
+        "risk": 0.02,
+        "compound": true,
+        "max_pos": 4,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-153",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma5",
+        "s4": true,
+        "risk": 0.025,
+        "compound": false,
+        "max_pos": 3,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-154",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma5",
+        "s4": true,
+        "risk": 0.025,
+        "compound": false,
+        "max_pos": 3,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-155",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma5",
+        "s4": true,
+        "risk": 0.025,
+        "compound": false,
+        "max_pos": 4,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-156",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma5",
+        "s4": true,
+        "risk": 0.025,
+        "compound": false,
+        "max_pos": 4,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-157",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma5",
+        "s4": true,
+        "risk": 0.025,
+        "compound": true,
+        "max_pos": 3,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-158",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma5",
+        "s4": true,
+        "risk": 0.025,
+        "compound": true,
+        "max_pos": 3,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-159",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma5",
+        "s4": true,
+        "risk": 0.025,
+        "compound": true,
+        "max_pos": 4,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-160",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma5",
+        "s4": true,
+        "risk": 0.025,
+        "compound": true,
+        "max_pos": 4,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-161",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma5",
+        "s4": true,
+        "risk": 0.03,
+        "compound": false,
+        "max_pos": 3,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-162",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma5",
+        "s4": true,
+        "risk": 0.03,
+        "compound": false,
+        "max_pos": 3,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-163",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma5",
+        "s4": true,
+        "risk": 0.03,
+        "compound": false,
+        "max_pos": 4,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-164",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma5",
+        "s4": true,
+        "risk": 0.03,
+        "compound": false,
+        "max_pos": 4,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-165",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma5",
+        "s4": true,
+        "risk": 0.03,
+        "compound": true,
+        "max_pos": 3,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-166",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma5",
+        "s4": true,
+        "risk": 0.03,
+        "compound": true,
+        "max_pos": 3,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-167",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma5",
+        "s4": true,
+        "risk": 0.03,
+        "compound": true,
+        "max_pos": 4,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-168",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma5",
+        "s4": true,
+        "risk": 0.03,
+        "compound": true,
+        "max_pos": 4,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-169",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma5",
+        "s4": false,
+        "risk": 0.02,
+        "compound": false,
+        "max_pos": 3,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-170",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma5",
+        "s4": false,
+        "risk": 0.02,
+        "compound": false,
+        "max_pos": 3,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-171",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma5",
+        "s4": false,
+        "risk": 0.02,
+        "compound": false,
+        "max_pos": 4,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-172",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma5",
+        "s4": false,
+        "risk": 0.02,
+        "compound": false,
+        "max_pos": 4,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-173",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma5",
+        "s4": false,
+        "risk": 0.02,
+        "compound": true,
+        "max_pos": 3,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-174",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma5",
+        "s4": false,
+        "risk": 0.02,
+        "compound": true,
+        "max_pos": 3,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-175",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma5",
+        "s4": false,
+        "risk": 0.02,
+        "compound": true,
+        "max_pos": 4,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-176",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma5",
+        "s4": false,
+        "risk": 0.02,
+        "compound": true,
+        "max_pos": 4,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-177",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma5",
+        "s4": false,
+        "risk": 0.025,
+        "compound": false,
+        "max_pos": 3,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-178",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma5",
+        "s4": false,
+        "risk": 0.025,
+        "compound": false,
+        "max_pos": 3,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-179",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma5",
+        "s4": false,
+        "risk": 0.025,
+        "compound": false,
+        "max_pos": 4,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-180",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma5",
+        "s4": false,
+        "risk": 0.025,
+        "compound": false,
+        "max_pos": 4,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-181",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma5",
+        "s4": false,
+        "risk": 0.025,
+        "compound": true,
+        "max_pos": 3,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-182",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma5",
+        "s4": false,
+        "risk": 0.025,
+        "compound": true,
+        "max_pos": 3,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-183",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma5",
+        "s4": false,
+        "risk": 0.025,
+        "compound": true,
+        "max_pos": 4,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-184",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma5",
+        "s4": false,
+        "risk": 0.025,
+        "compound": true,
+        "max_pos": 4,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-185",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma5",
+        "s4": false,
+        "risk": 0.03,
+        "compound": false,
+        "max_pos": 3,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-186",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma5",
+        "s4": false,
+        "risk": 0.03,
+        "compound": false,
+        "max_pos": 3,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-187",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma5",
+        "s4": false,
+        "risk": 0.03,
+        "compound": false,
+        "max_pos": 4,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-188",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma5",
+        "s4": false,
+        "risk": 0.03,
+        "compound": false,
+        "max_pos": 4,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-189",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma5",
+        "s4": false,
+        "risk": 0.03,
+        "compound": true,
+        "max_pos": 3,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-190",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma5",
+        "s4": false,
+        "risk": 0.03,
+        "compound": true,
+        "max_pos": 3,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-191",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma5",
+        "s4": false,
+        "risk": 0.03,
+        "compound": true,
+        "max_pos": 4,
+        "max_same": 2,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-GRID-192",
+      "name": "旧组合参数网格",
+      "source": "backtest/portfolio_gen.py + portfolio_sim.py",
+      "params": {
+        "trail": "ma5",
+        "s4": false,
+        "risk": 0.03,
+        "compound": true,
+        "max_pos": 4,
+        "max_same": 3,
+        "tiers": true
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-SKETCH-01",
+      "name": "旧组合草稿",
+      "source": "backtest/portfolio_sketch.py",
+      "params": {
+        "trail": "ma5",
+        "risk_k": 1,
+        "max_pos": 3,
+        "max_same": 2
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-SKETCH-02",
+      "name": "旧组合草稿",
+      "source": "backtest/portfolio_sketch.py",
+      "params": {
+        "trail": "ma5",
+        "risk_k": 2,
+        "max_pos": 3,
+        "max_same": 2
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-SKETCH-03",
+      "name": "旧组合草稿",
+      "source": "backtest/portfolio_sketch.py",
+      "params": {
+        "trail": "ma5",
+        "risk_k": 3,
+        "max_pos": 3,
+        "max_same": 2
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-SKETCH-04",
+      "name": "旧组合草稿",
+      "source": "backtest/portfolio_sketch.py",
+      "params": {
+        "trail": "mix",
+        "risk_k": 1,
+        "max_pos": 3,
+        "max_same": 2
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-SKETCH-05",
+      "name": "旧组合草稿",
+      "source": "backtest/portfolio_sketch.py",
+      "params": {
+        "trail": "mix",
+        "risk_k": 2,
+        "max_pos": 3,
+        "max_same": 2
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-SKETCH-06",
+      "name": "旧组合草稿",
+      "source": "backtest/portfolio_sketch.py",
+      "params": {
+        "trail": "mix",
+        "risk_k": 3,
+        "max_pos": 3,
+        "max_same": 2
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-SKETCH-07",
+      "name": "旧组合草稿",
+      "source": "backtest/portfolio_sketch.py",
+      "params": {
+        "trail": "ma20",
+        "risk_k": 1,
+        "max_pos": 3,
+        "max_same": 2
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-SKETCH-08",
+      "name": "旧组合草稿",
+      "source": "backtest/portfolio_sketch.py",
+      "params": {
+        "trail": "ma20",
+        "risk_k": 2,
+        "max_pos": 3,
+        "max_same": 2
+      },
+      "status": "historical_defined_configuration_not_rerun"
+    },
+    {
+      "id": "LEG-SKETCH-09",
+      "name": "旧组合草稿",
+      "source": "backtest/portfolio_sketch.py",
+      "params": {
+        "trail": "ma20",
+        "risk_k": 3,
+        "max_pos": 3,
+        "max_same": 2
+      },
+      "status": "historical_defined_configuration_not_rerun"
     }
   ]
 }
